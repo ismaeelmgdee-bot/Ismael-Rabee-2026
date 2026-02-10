@@ -92,23 +92,34 @@ with col_n:
 
 # 8. قائمة الاختيار
 titles = [x[0] for x in talaawat_list]
-selected_title = st.selectbox("اختر من جواهر التلاوات:", titles, index=st.session_state.current_index)
 
-# تحديث الفهرس
-st.session_state.current_index = titles.index(selected_title)
+# دالة ذكية لتحديث الفهرس بمجرد تغيير الاختيار
+def update_index():
+    st.session_state.current_index = titles.index(st.session_state.selector_key)
+
+selected_title = st.selectbox(
+    "اختر من جواهر التلاوات:", 
+    titles, 
+    index=st.session_state.current_index,
+    key="selector_key",
+    on_change=update_index
+)
+
+# جلب البيانات بناءً على الفهرس المحدث
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
 st.markdown("---")
 
-# 9. المشغل الصوتي
+# 9. المشغل الصوتي (إضافة مفتاح فريد لضمان إعادة التحميل)
 st.subheader(f"📖 {current_name}")
-st.audio(current_url)
+# نستخدم الـ URL كمفتاح (Key) لنجبر المشغل على التحديث عند تغيير الرابط
+st.audio(current_url, format="audio/mp3", key=f"audio_player_{st.session_state.current_index}")
 
-# 10. زر التحميل
+# 10. زر التحميل المطوّر
 st.markdown(f"""
     <div style="text-align: center; margin-top: 20px;">
-        <a href="{current_url}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+        <a href="{current_url}" target="_blank" download="{current_name}.mp3" style="text-decoration: none;">
+            <button style="background-color: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 80%;">
                 📥 تحميل الملف الصوتي (MP3)
             </button>
         </a>
@@ -116,4 +127,4 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # تذييل الصفحة
-st.markdown("<div class='footer'>برمجه وتطوير  م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
+st.markdown("<div class='footer'>برمجه وتطوير م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
