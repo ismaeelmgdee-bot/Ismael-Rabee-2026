@@ -78,10 +78,14 @@ talaawat_list = [
 def next_track():
     if st.session_state.current_index < len(talaawat_list) - 1:
         st.session_state.current_index += 1
+        # تحديث القائمة المنسدلة لتواكب الزر
+        st.session_state.selector_key = talaawat_list[st.session_state.current_index][0]
 
 def prev_track():
     if st.session_state.current_index > 0:
         st.session_state.current_index -= 1
+        # تحديث القائمة المنسدلة لتواكب الزر
+        st.session_state.selector_key = talaawat_list[st.session_state.current_index][0]
 
 # 7. أزرار التحكم
 col_p, col_n = st.columns(2)
@@ -90,10 +94,11 @@ with col_p:
 with col_n:
     st.button("التلاوة التالية ⏭️", on_click=next_track)
 
+# 8. قائمة الاختيار (المزامنة الكاملة)
 titles = [x[0] for x in talaawat_list]
 
-# وظيفة التحديث الفوري للفهرس عند التغيير اليدوي
 def sync_selection():
+    # تحديث الفهرس بناءً على اختيار القائمة
     st.session_state.current_index = titles.index(st.session_state.selector_key)
 
 selected_title = st.selectbox(
@@ -104,12 +109,12 @@ selected_title = st.selectbox(
     on_change=sync_selection
 )
 
-# جلب البيانات بناءً على الفهرس المحدث
+# جلب البيانات النهائية للتشغيل
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
 st.markdown("---")
 
-# 9. المشغل الصوتي (تم تصحيحه ليتوافق مع أحدث إصدار)
+# 9. المشغل الصوتي
 st.subheader(f"📖 {current_name}")
 st.audio(current_url)
 
