@@ -1,88 +1,85 @@
 import streamlit as st
+import urllib.parse  # لإصلاح مشاكل الروابط العربية
 
-# إعدادات الصفحة
-st.set_page_config(page_title="ربيع القلوب 2026", page_icon="🌙", layout="centered")
+# 1. إعدادات الصفحة
+st.set_page_config(page_title="ربيع القلوب 2026", page_icon="📖", layout="centered")
 
-# لمسة جمالية للواجهة
+# 2. تهيئة الذاكرة
+if 'current_index' not in st.session_state:
+    st.session_state.current_index = 0
+
+# 3. تصميم CSS احترافي ثابت
 st.markdown("""
     <style>
     .stApp { background-color: #0d1117; color: #ffffff; direction: rtl; }
-    h1 { color: #4CAF50; text-align: center; font-family: 'Amiri', serif; }
+    h1 { color: #d4af37 !important; text-align: center; font-family: 'Amiri', serif; }
+    .stButton button { background-color: #d4af37; color: #000; border-radius: 12px; font-weight: bold; width: 100%; border: none; }
     .stAudio { width: 100%; border-radius: 20px; }
+    /* منع اللون الرمادي عند تمرير الماوس */
+    audio { background-color: #d4af37; border-radius: 50px; width: 100%; }
+    audio::-webkit-media-controls-panel { background-color: #d4af37 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🌙 ربيع القلوب")
-st.write("<p style='text-align: center;'>نظام البث المباشر المستقر</p>", unsafe_allow_html=True)
+# 4. قاعدة البيانات (الأسماء فقط)
+base_url = "https://archive.org/download/audio4_quraan/"
 
-# قاعدة البيانات (الروابط الصحيحة)
-import streamlit as st
+talaawat_data = [
+    ("الجوهرة 1 - سورة الكهف وقصار السور", "سورة الكهف وقصار السور بالقراءات .. تلاوة إعجازية للشيخ عبد الباسط - دمشق 1957م.mp3"),
+    ("الجوهرة 2 - سورة يوسف (حلب 1956)", "سورة يوسف بالقراءات .. تلاوة إعجازية للشيخ عبد الباسط - القصر الجابري بحلب 1956م.mp3"),
+    ("الجوهرة 3 - تلاوة نادرة (الحج)", "تلاوة نادرة تعرض لأول مرة من أروع ما تسمع للشيخ عبدالباسط عبدالصمد _ سورة الحج - Surah A(MP3_1.mp3"),
+    ("الجوهرة 4 - الواقعة والطارق (1956)", "تلاوة نادرة جداً للشيخ عبد الباسط بأداء لا يوصف في سورتي الواقعة والطارق 1956م.mp3"),
+    ("الجوهرة 5 - قصة موسى (القصص)", "بالتلاوات قصه موسى عليه السلام من سوره القصص للشيخ عبدالباسط عبدالصمد.mp3"),
+    ("الجوهرة 6 - وجاءوا أباهم عشاء (يوسف)", "وجاءوا أباهم عشاء يبكون.. سورة يوسف.. اللازقية.. اخرى.. 1962.mp3"),
+    ("الجوهرة 7 - التلاوة الأروع على الإطلاق", "لن يأتي الزمان بمثلك الا ان يشاء الله هذه التلاوة هى الاروع على الاطلاق للشيخ عبد الباسط.mp3"),
+    ("الجوهرة 8 - تلاوة فوق السحاب (1)", "تصوير من فوق السحاب لأروع تلاوة تهدئ الأعصاب والنفوس في العالم | الشيخ عبد الباسط عبد الصمد | HD.mp3"),
+    ("الجوهرة 9 - تلاوة فوق السحاب (2)", "أروع تلاوة تريح القلوب والنفوس تصوير من فوق السحاب لعبد الباسط مع ترجمة المعاني ل(MP3_1.mp3"),
+    ("الجوهرة 10 - مقطع نادر جودة عالية", "يا الله على جمال وروعة هذا المقطع من وائع الشيخ عبد الباسط عبد الصمد !! جودة عالية ᴴᴰ.mp3"),
+    ("الجوهرة 11 - سورة الإخلاص", "Al-Ikhlas.mp3"),
+    ("الجوهرة 12 - تلاوة مباركة 10", "audio10_.mp3"),
+    ("الجوهرة 13 - تلاوة مباركة 11", "audio11_.mp3"),
+    ("الجوهرة 14 - تلاوة مباركة 13", "audio13_.mp3"),
+    ("الجوهرة 15 - تلاوة مباركة 15", "audio15_.mp3"),
+    ("الجوهرة 16 - تلاوة مباركة 17", "audio17_.mp3"),
+    ("الجوهرة 17 - تلاوة مباركة 3", "audio3_.mp3"),
+    ("الجوهرة 18 - تلاوة مباركة 6", "audio6_.mp3"),
+    ("الجوهرة 19 - تلاوة مباركة 9", "audio9_.mp3"),
+    ("الجوهرة 20 - تلاوة ختامية", "audio4_.mp3")
+]
 
-# إعدادات الواجهة
-st.set_page_config(page_title="ربيع القلوب 2026", page_icon="🌙")
+# دالة ذكية لإصلاح الروابط (URL Encoding)
+def get_safe_url(file_name):
+    encoded_name = urllib.parse.quote(file_name)
+    return base_url + encoded_name
 
-st.markdown("""
-    <style>
-    .stApp { background-color: #0d1117; color: #ffffff; direction: rtl; }
-    h1 { color: #4CAF50; text-align: center; }
-    </style>
-    """, unsafe_allow_html=True)
-
+# 5. واجهة التحكم
 st.title("🌙 مكتبة ربيع القلوب الصوتية")
 
-# --- قاعدة بيانات التلاوات (من 1 إلى 20) ---
-talaawat = {
-    "التلاوة الأولى (Audio 1)": "https://archive.org/download/audio1_/audio1_.mp3",
-    "التلاوة الثانية (Audio 2)": "https://archive.org/download/audio2_/audio2_.mp3",
-    "التلاوة الثالثة (Audio 3)": "https://archive.org/download/audio3_/audio3_.mp3",
-    "التلاوة الرابعة (Audio 4)": "https://archive.org/download/audio4_/audio4_.mp3",
-    "التلاوة الخامسة (Audio 5)": "https://archive.org/download/audio5_/audio5_.mp3",
-    "التلاوة السادسة (Audio 6)": "https://archive.org/download/audio6_/audio6_.mp3",
-    "التلاوة السابعة (Audio 7)": "https://archive.org/download/audio7_/audio7_.mp3",
-    "التلاوة الثامنة (Audio 8)": "https://archive.org/download/audio8_/audio8_.mp3",
-    "التلاوة التاسعة (Audio 9)": "https://archive.org/download/audio9_/audio9_.mp3",
-    "التلاوة العاشرة (Audio 10)": "https://archive.org/download/audio10_/audio10_.mp3",
-    "التلاوة الحادية عشر (Audio 11)": "https://archive.org/download/audio11_/audio11_.mp3",
-    "التلاوة الثانية عشر (Audio 12)": "https://archive.org/download/audio12_/audio12_.mp3",
-    "التلاوة الثالثة عشر (Audio 13)": "https://archive.org/download/audio13_/audio13_.mp3",
-    "التلاوة الرابعة عشر (Audio 14)": "https://archive.org/download/audio14_/audio14_.mp3",
-    "التلاوة الخامسة عشر (Audio 15)": "https://archive.org/download/audio15_/audio15_.mp3",
-    "التلاوة السادسة عشر (Audio 16)": "https://archive.org/download/audio16_/audio16_.mp3",
-    "التلاوة السابعة عشر (Audio 17)": "https://archive.org/download/audio17_/audio17_.mp3",
-    "التلاوة الثامنة عشر (Audio 18)": "https://archive.org/download/audio18_/audio18_.mp3",
-    "التلاوة التاسعة عشر (Audio 19)": "https://archive.org/download/audio19_/audio19_.mp3",
-    "التلاوة العشرون (Audio 20)": "https://archive.org/download/audio20_/audio20_.mp3"
-}
+col1, col3 = st.columns([1, 1])
+with col1:
+    if st.button("⏮️ السابق"):
+        if st.session_state.current_index > 0: st.session_state.current_index -= 1
+with col3:
+    if st.button("التالي ⏭️"):
+        if st.session_state.current_index < len(talaawat_data) - 1: st.session_state.current_index += 1
 
-# واجهة الاختيار (ستظهر لك الآن جميع الخيارات في المتصفح)
-choice = st.selectbox("اختر التلاوة المباركة:", list(talaawat.keys()))
+# الاختيار الحالي
+current_item = talaawat_data[st.session_state.current_index]
+current_name = current_item[0]
+current_url = get_safe_url(current_item[1])
 
-st.write("---")
+st.selectbox("قائمة الكنوز:", [x[0] for x in talaawat_data],
+             index=st.session_state.current_index, key="sb")
 
-# الحصول على الرابط
-url = talaawat[choice]
+st.markdown("---")
+st.markdown("<h1 style='font-size: 80px;'>📖</h1>", unsafe_allow_html=True)
+st.subheader(f"أنت تستمع إلى: {current_name}")
 
-st.subheader(f"استماع: {choice}")
-st.audio(url, format="audio/mp3")
+# 6. تشغيل الصوت مع معالجة الأخطاء
+try:
+    st.audio(current_url, format="audio/mp3", autoplay=True)
+    st.success("✅ تم الاتصال بالسحابة بنجاح")
+except:
+    st.error("⚠️ عذراً، الملف قيد المعالجة في الأرشيف.. جرب تلاوة أخرى")
 
-st.info("💡 ملاحظة: تأكد من رفع كل ملف للأرشيف ليعمل الرابط بنجاح.")
-st.caption("برمجة وتطوير: إسماعيل | ربيع القلوب 2026")
-
-# واجهة الاختيار
-selection = st.selectbox("اختر السورة أو التلاوة:", list(talaawat.keys()))
-audio_url = talaawat[selection]
-
-st.write("---")
-
-# عرض صورة افتراضية أو شعار البرنامج
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    st.markdown("<h1 style='font-size: 100px; text-align: center;'>📖</h1>", unsafe_allow_html=True)
-
-st.subheader(f"الآن تستمع إلى: {selection}")
-
-# مشغل الصوت الاحترافي (سيعمل الآن فوراً!)
-st.audio(audio_url, format="audio/mp3")
-
-st.success("✅ متصل بسحابة Archive.org")
-st.caption("تطوير: إسماعيل | ربيع القلوب v1.1")
+st.caption("جميع الحقوق محفوظة © مجدي إسماعيل 2026")
