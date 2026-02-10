@@ -1,42 +1,99 @@
 import streamlit as st
 
-st.set_page_config(page_title="ربيع القلوب 2026", page_icon="📖")
+# 1. إعدادات الصفحة - ربط الأيقونة من مجلد assets
+st.set_page_config(
+    page_title="ربيع القلوب 2026",
+    page_icon="assets/quran.png",
+    layout="centered"
+)
 
-# التصميم الملكي
+# 2. تهيئة الذاكرة (للتنقل بين التلاوات)
+if 'current_index' not in st.session_state:
+    st.session_state.current_index = 0
+
+# 3. التصميم الملكي (أسود ذهبي)
 st.markdown("""
     <style>
     .stApp { background-color: #0d1117; color: #ffffff; direction: rtl; }
-    h1 { color: #d4af37 !important; text-align: center; }
-    audio { width: 100%; border-radius: 50px; background-color: #d4af37; }
+    h1 { color: #d4af37 !important; text-align: center; font-family: 'Amiri', serif; text-shadow: 2px 2px 4px #000; }
+    .stSelectbox label { color: #d4af37 !important; font-size: 18px; }
+    audio { width: 100%; border-radius: 50px; background-color: #d4af37; margin-top: 10px; }
+    .stButton button { background-color: #d4af37; color: #000; border-radius: 10px; font-weight: bold; width: 100%; }
+    .stButton button:hover { background-color: #f1d592; color: #000; border: 1px solid #fff; }
+    .footer { text-align: center; color: #666; font-size: 12px; margin-top: 50px; }
     </style>
     """, unsafe_allow_html=True)
 
-# القاعدة الصحيحة للروابط (تأكد من وجود download وشرطة مائلة في النهاية)
-base = "https://archive.org/download/audio4_quraan/"
+# 4. قاعدة بيانات الروابط (مجلد gethub في الأرشيف)
+base = "https://archive.org/download/audio4_quraan/gethub"
 
-# قائمة الجواهر (جربت لك تعديل الأسماء لتكون أكثر دقة)
 talaawat_list = [
-    ("الجوهرة 1", f"{base}audio12_.mp3"),
-    ("الجوهرة 2", f"{base}audio14_.mp3"),
-    ("الجوهرة 11 (الإخلاص)", f"{base}Al-Ikhlas.mp3") # جرب هذا أولاً
+    ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
+    ("الجوهرة 2 - سورة يوسف (حلب 1956)", f"{base}/audio14_.mp3"),
+    ("الجوهرة 3 - تلاوة نادرة (الحج)", f"{base}/audio7_.mp3"),
+    ("الجوهرة 4 - الواقعة والطارق (1956)", f"{base}/audio8_.mp3"),
+    ("الجوهرة 5 - قصة موسى (القصص)", f"{base}/audio2_.mp3"),
+    ("الجوهرة 6 - وجاءوا أباهم عشاء (يوسف)", f"{base}/audio18_.mp3"),
+    ("الجوهرة 7 - التلاوة الأروع على الإطلاق", f"{base}/audio16_.mp3"),
+    ("الجوهرة 8 - تلاوة فوق السحاب (1)", f"{base}/audio4_.mp3"),
+    ("الجوهرة 9 - تلاوة فوق السحاب (2)", f"{base}/audio5_.mp3"),
+    ("الجوهرة 10 - مقطع نادر جودة عالية", f"{base}/audio19_.mp3"),
+    ("الجوهرة 11 - سورة الإخلاص", f"{base}/Al-Ikhlas.mp3"),
+    ("الجوهرة 12 - تلاوة مباركة 10", f"{base}/audio10_.mp3"),
+    ("الجوهرة 13 - تلاوة مباركة 11", f"{base}/audio11_.mp3"),
+    ("الجوهرة 14 - تلاوة مباركة 13", f"{base}/audio13_.mp3"),
+    ("الجوهرة 15 - تلاوة مباركة 15", f"{base}/audio15_.mp3"),
+    ("الجوهرة 16 - تلاوة مباركة 17", f"{base}/audio17_.mp3"),
+    ("الجوهرة 17 - تلاوة مباركة 3", f"{base}/audio3_.mp3"),
+    ("الجوهرة 18 - تلاوة مباركة 6", f"{base}/audio6_.mp3"),
+    ("الجوهرة 19 - تلاوة مباركة 9", f"{base}/audio9_.mp3"),
+    ("الجوهرة 20 - تلاوة ختامية", f"{base}/audio1_.mp3")
 ]
 
-st.title("🌙 مكتبة ربيع القلوب")
+# 5. دوال التنقل
+def next_track():
+    if st.session_state.current_index < len(talaawat_list) - 1:
+        st.session_state.current_index += 1
 
-selection = st.selectbox("اختر التلاوة:", [x[0] for x in talaawat_list])
+def prev_track():
+    if st.session_state.current_index > 0:
+        st.session_state.current_index -= 1
 
-# البحث عن الرابط المختار
-current_url = ""
-for name, url in talaawat_list:
-    if name == selection:
-        current_url = url
+# 6. واجهة المستخدم
+st.markdown(f"<div style='text-align: center;'><img src='app/static/assets/quran.png' width='100'></div>", unsafe_allow_html=True)
+st.title("🌙 تطبيق ربيع القلوب")
 
-st.write(f"جاري محاولة الاتصال بالملف...")
+# أزرار التنقل (التالي والسابق)
+col_p, col_n = st.columns(2)
+with col_p:
+    st.button("⏮️ التلاوة السابقة", on_click=prev_track)
+with col_n:
+    st.button("التلاوة التالية ⏭️", on_click=next_track)
 
-# المشغل
-if current_url:
-    st.audio(current_url)
-    # هذا الرابط للمساعدة في اكتشاف الخطأ، اضغط عليه لتعرف هل يعمل أم لا
-    st.markdown(f"[🔗 اضغط هنا لفتح الملف مباشرة والتأكد منه]({current_url})")
+# قائمة الاختيار المباشر
+titles = [x[0] for x in talaawat_list]
+selected_title = st.selectbox("اختر من جواهر التلاوات:", titles, index=st.session_state.current_index)
 
-st.caption("إذا ظهرت صفحة 404 عند الضغط على الرابط أعلاه، فالاسم في الكود يختلف عن الاسم في الأرشيف.")
+# تحديث الفهرس بناءً على اختيار القائمة
+st.session_state.current_index = titles.index(selected_title)
+current_name, current_url = talaawat_list[st.session_state.current_index]
+
+st.markdown("---")
+
+# مشغل الصوت
+st.subheader(f"📖 {current_name}")
+st.audio(current_url)
+
+# زر التحميل المباشر
+st.markdown(f"""
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{current_url}" target="_blank" style="text-decoration: none;">
+            <button style="background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                📥 تحميل الملف الصوتي (MP3)
+            </button>
+        </a>
+    </div>
+""", unsafe_allow_html=True)
+
+# تذييل
+st.markdown("<div class='footer'>تم التطوير بواسطة مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
