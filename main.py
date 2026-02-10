@@ -1,6 +1,6 @@
 import streamlit as st
 
-# 1. إعدادات الصفحة (الأيقونة في عنوان المتصفح)
+# 1. إعدادات الصفحة
 st.set_page_config(
     page_title="ربيع القلوب 2026",
     page_icon="assets/quran.png",
@@ -11,7 +11,7 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم الملكي (أسود وذهبي)
+# 3. التصميم الملكي
 st.markdown("""
     <style>
     .stApp { background-color: #0d1117; color: #ffffff; direction: rtl; }
@@ -24,14 +24,13 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 4. عرض الأيقونة في صدر الصفحة (مناسبة للهاتف)
+# 4. الأيقونة والعنوان
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
     st.image("assets/quran.png", width=100)
-
 st.markdown("<h1 style='margin-top: -20px;'>🌙 تطبيق ربيع القلوب</h1>", unsafe_allow_html=True)
 
-# 5. قاعدة بيانات الروابط (gethub)
+# 5. قاعدة بيانات الروابط الموحدة
 base = "https://archive.org/download/audio30__20260210/gethub"
 
 talaawat_list = [
@@ -72,14 +71,23 @@ talaawat_list = [
     ("الجوهرة 34 - تلاوة مباركة 34", f"{base}/audio34_.mp3")
 ]
 
-# 6. دوال التنقل
+# إضافة الجواهر من 21 إلى 34 برمجياً لضمان الدقة
+for i in range(21, 35):
+    talaawat_list.append((f"الجوهرة {i} - تلاوة مباركة {i}", f"{base}/audio{i}_.mp3"))
+
+# 6. دوال التنقل مع مزامنة القائمة
+def update_index():
+    st.session_state.current_index = titles.index(st.session_state.selector_key)
+
 def next_track():
     if st.session_state.current_index < len(talaawat_list) - 1:
         st.session_state.current_index += 1
+        st.session_state.selector_key = talaawat_list[st.session_state.current_index][0]
 
 def prev_track():
     if st.session_state.current_index > 0:
         st.session_state.current_index -= 1
+        st.session_state.selector_key = talaawat_list[st.session_state.current_index][0]
 
 # 7. أزرار التحكم
 col_p, col_n = st.columns(2)
@@ -90,10 +98,15 @@ with col_n:
 
 # 8. قائمة الاختيار
 titles = [x[0] for x in talaawat_list]
-selected_title = st.selectbox("اختر من جواهر التلاوات:", titles, index=st.session_state.current_index)
+selected_title = st.selectbox(
+    "اختر من جواهر التلاوات:",
+    titles,
+    index=st.session_state.current_index,
+    key="selector_key",
+    on_change=update_index
+)
 
-# تحديث الفهرس
-st.session_state.current_index = titles.index(selected_title)
+# جلب البيانات الحالية
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
 st.markdown("---")
@@ -105,8 +118,8 @@ st.audio(current_url)
 # 10. زر التحميل
 st.markdown(f"""
     <div style="text-align: center; margin-top: 20px;">
-        <a href="{current_url}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+        <a href="{current_url}" target="_blank" download style="text-decoration: none;">
+            <button style="background-color: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 80%;">
                 📥 تحميل الملف الصوتي (MP3)
             </button>
         </a>
@@ -114,4 +127,4 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # تذييل الصفحة
-st.markdown("<div class='footer'>برمجه وتطوير  م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
+st.markdown("<div class='footer'>برمجه وتطوير م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
