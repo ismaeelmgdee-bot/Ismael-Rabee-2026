@@ -32,8 +32,7 @@ with col2:
 st.markdown("<h1 style='margin-top: -20px;'>🌙 تطبيق ربيع القلوب</h1>", unsafe_allow_html=True)
 
 # 5. قاعدة بيانات الروابط (gethub)
-base = "https://archive.org/download/audio4_quraan/gethub"
-base_new = "https://archive.org/download/audio30__202602/gethub"
+base = "https://archive.org/download/audio30__20260210/gethub"
 
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
@@ -57,35 +56,30 @@ talaawat_list = [
     ("الجوهرة 19 - تلاوة مباركة 9", f"{base}/audio9_.mp3"),
     ("الجوهرة 20 - تلاوة ختامية", f"{base}/audio1_.mp3"),
     # الإضافات الجديدة (الجواهر الـ 14 الإضافية)
-    ("الجوهرة 21 - تلاوة مباركة 21", f"{base_new}/audio21_.mp3"),
-    ("الجوهرة 22 - تلاوة مباركة 22", f"{base_new}/audio22_.mp3"),
-    ("الجوهرة 23 - تلاوة مباركة 23", f"{base_new}/audio23_.mp3"),
-    ("الجوهرة 24 - تلاوة مباركة 24", f"{base_new}/audio24_.mp3"),
-    ("الجوهرة 25 - تلاوة مباركة 25", f"{base_new}/audio25_.mp3"),
-    ("الجوهرة 26 - تلاوة مباركة 26", f"{base_new}/audio26_.mp3"),
-    ("الجوهرة 27 - تلاوة مباركة 27", f"{base_new}/audio27_.mp3"),
-    ("الجوهرة 28 - تلاوة مباركة 28", f"{base_new}/audio28_.mp3"),
-    ("الجوهرة 29 - تلاوة مباركة 29", f"{base_new}/audio29_.mp3"),
-    ("الجوهرة 30 - تلاوة مباركة 30", f"{base_new}/audio30_.mp3"),
-    ("الجوهرة 31 - تلاوة مباركة 31", f"{base_new}/audio31_.mp3"),
-    ("الجوهرة 32 - تلاوة مباركة 32", f"{base_new}/audio32_.mp3"),
-    ("الجوهرة 33 - تلاوة مباركة 33", f"{base_new}/audio33_.mp3"),
-    ("الجوهرة 34 - تلاوة مباركة 34", f"{base_new}/audio34_.mp3")
-
+    ("الجوهرة 21 - تلاوة مباركة 21", f"{base}/audio21_.mp3"),
+    ("الجوهرة 22 - تلاوة مباركة 22", f"{base}/audio22_.mp3"),
+    ("الجوهرة 23 - تلاوة مباركة 23", f"{base}/audio23_.mp3"),
+    ("الجوهرة 24 - تلاوة مباركة 24", f"{base}/audio24_.mp3"),
+    ("الجوهرة 25 - تلاوة مباركة 25", f"{base}/audio25_.mp3"),
+    ("الجوهرة 26 - تلاوة مباركة 26", f"{base}/audio26_.mp3"),
+    ("الجوهرة 27 - تلاوة مباركة 27", f"{base}/audio27_.mp3"),
+    ("الجوهرة 28 - تلاوة مباركة 28", f"{base}/audio28_.mp3"),
+    ("الجوهرة 29 - تلاوة مباركة 29", f"{base}/audio29_.mp3"),
+    ("الجوهرة 30 - تلاوة مباركة 30", f"{base}/audio30_.mp3"),
+    ("الجوهرة 31 - تلاوة مباركة 31", f"{base}/audio31_.mp3"),
+    ("الجوهرة 32 - تلاوة مباركة 32", f"{base}/audio32_.mp3"),
+    ("الجوهرة 33 - تلاوة مباركة 33", f"{base}/audio33_.mp3"),
+    ("الجوهرة 34 - تلاوة مباركة 34", f"{base}/audio34_.mp3")
 ]
 
 # 6. دوال التنقل
 def next_track():
     if st.session_state.current_index < len(talaawat_list) - 1:
         st.session_state.current_index += 1
-        # تحديث القائمة المنسدلة لتواكب الزر
-        st.session_state.selector_key = talaawat_list[st.session_state.current_index][0]
 
 def prev_track():
     if st.session_state.current_index > 0:
         st.session_state.current_index -= 1
-        # تحديث القائمة المنسدلة لتواكب الزر
-        st.session_state.selector_key = talaawat_list[st.session_state.current_index][0]
 
 # 7. أزرار التحكم
 col_p, col_n = st.columns(2)
@@ -94,22 +88,12 @@ with col_p:
 with col_n:
     st.button("التلاوة التالية ⏭️", on_click=next_track)
 
-# 8. قائمة الاختيار (المزامنة الكاملة)
+# 8. قائمة الاختيار
 titles = [x[0] for x in talaawat_list]
+selected_title = st.selectbox("اختر من جواهر التلاوات:", titles, index=st.session_state.current_index)
 
-def sync_selection():
-    # تحديث الفهرس بناءً على اختيار القائمة
-    st.session_state.current_index = titles.index(st.session_state.selector_key)
-
-selected_title = st.selectbox(
-    "اختر من جواهر التلاوات:", 
-    titles, 
-    index=st.session_state.current_index,
-    key="selector_key",
-    on_change=sync_selection
-)
-
-# جلب البيانات النهائية للتشغيل
+# تحديث الفهرس
+st.session_state.current_index = titles.index(selected_title)
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
 st.markdown("---")
@@ -122,7 +106,7 @@ st.audio(current_url)
 st.markdown(f"""
     <div style="text-align: center; margin-top: 20px;">
         <a href="{current_url}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 80%;">
+            <button style="background-color: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
                 📥 تحميل الملف الصوتي (MP3)
             </button>
         </a>
@@ -130,4 +114,4 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # تذييل الصفحة
-st.markdown("<div class='footer'>برمجه وتطوير م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
+st.markdown("<div class='footer'>برمجه وتطوير  م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
