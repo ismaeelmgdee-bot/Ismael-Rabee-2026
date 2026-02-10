@@ -90,11 +90,10 @@ with col_p:
 with col_n:
     st.button("التلاوة التالية ⏭️", on_click=next_track)
 
-# 8. قائمة الاختيار
 titles = [x[0] for x in talaawat_list]
 
-# دالة ذكية لتحديث الفهرس بمجرد تغيير الاختيار
-def update_index():
+# وظيفة التحديث الفوري للفهرس عند التغيير اليدوي
+def sync_selection():
     st.session_state.current_index = titles.index(st.session_state.selector_key)
 
 selected_title = st.selectbox(
@@ -102,7 +101,7 @@ selected_title = st.selectbox(
     titles, 
     index=st.session_state.current_index,
     key="selector_key",
-    on_change=update_index
+    on_change=sync_selection
 )
 
 # جلب البيانات بناءً على الفهرس المحدث
@@ -110,15 +109,14 @@ current_name, current_url = talaawat_list[st.session_state.current_index]
 
 st.markdown("---")
 
-# 9. المشغل الصوتي (إضافة مفتاح فريد لضمان إعادة التحميل)
+# 9. المشغل الصوتي (تم تصحيحه ليتوافق مع أحدث إصدار)
 st.subheader(f"📖 {current_name}")
-# نستخدم الـ URL كمفتاح (Key) لنجبر المشغل على التحديث عند تغيير الرابط
-st.audio(current_url, format="audio/mp3", key=f"audio_player_{st.session_state.current_index}")
+st.audio(current_url)
 
-# 10. زر التحميل المطوّر
+# 10. زر التحميل
 st.markdown(f"""
     <div style="text-align: center; margin-top: 20px;">
-        <a href="{current_url}" target="_blank" download="{current_name}.mp3" style="text-decoration: none;">
+        <a href="{current_url}" target="_blank" style="text-decoration: none;">
             <button style="background-color: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 80%;">
                 📥 تحميل الملف الصوتي (MP3)
             </button>
