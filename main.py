@@ -13,30 +13,21 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم الصافي (Clean UI) وإخفاء كل زوائد ستريم ليت
+# 3. التصميم الصافي (Clean UI)
 st.markdown("""
     <style>
-    /* إخفاء كل ما يمت لـ Streamlit بصلة */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
     div[data-testid="stStatusWidget"] {display: none;}
     .stDeployButton {display: none;}
-
-    /* إخفاء أزرار الإدارة في أسفل اليمين لنسخة الكلاود */
     iframe[title="Manage app"] {display: none !important;}
-    button[title="View source"] {display: none !important;}
 
     .stApp {
         background-color: #0d1117;
         background-image: url("https://www.transparenttextures.com/patterns/islamic-art.png");
         color: #ffffff; direction: rtl;
         overflow: hidden;
-    }
-
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 0rem !important;
     }
 
     .main-title { 
@@ -53,7 +44,6 @@ st.markdown("""
     }
     .dev-footer a { color: #d4af37; text-decoration: none; font-weight: bold; }
 
-    /* الفانوس المتحرك */
     .lantern-container {
         position: fixed; top: -15px; left: 15px; z-index: 9999;
         animation: swing 3s infinite ease-in-out alternate;
@@ -62,7 +52,7 @@ st.markdown("""
     .lantern-img { width: 50px; filter: drop-shadow(0 0 10px #ffeb3b); }
     @keyframes swing { 0% { transform: rotate(5deg); } 100% { transform: rotate(-5deg); } }
     </style>
-
+    
     <div class="lantern-container">
         <img src="https://cdn-icons-png.flaticon.com/512/3655/3655460.png" class="lantern-img">
     </div>
@@ -70,8 +60,6 @@ st.markdown("""
 
 # 4. القائمة المعتمدة
 base = "https://archive.org/download/audio30__20260210/gethub"
-img_url = "https://archive.org/download/audio30__20260210/assets/quran.png"
-
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
     ("الجوهرة 2 - سورة يوسف (حلب 1956)", f"{base}/audio14_.mp3"),
@@ -110,17 +98,17 @@ talaawat_list = [
 ]
 titles = [x[0] for x in talaawat_list]
 
-# 5. منطق الانتقال الصامت
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-# 6. الواجهة (استعادة نظام الشرق/اليمين والحجم الأصلي)
+# 5. الواجهة (العودة لخصائص quran.png الأصلية)
 col1, col2, col3 = st.columns([0.4, 1, 0.4])
-with col2: st.image(img_url, width=100) # العودة لعرض 100 والتموضع السابق
+with col2: 
+    st.image("assets/quran.png", width=100) # استخدام المسار المحلي والحجم الأصلي
 
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
 
-# زر الإضافة للشاشة الرئيسية
+# 6. زر الإضافة للشاشة الرئيسية
 if st.button("📱 اضغط هنا لتثبيت التطبيق على هاتفك", key="install_btn"):
     st.toast("انقر على النقاط الثلاث (⋮) ثم 'الإضافة إلى الشاشة الرئيسية'", icon="📲")
 
@@ -137,7 +125,7 @@ st.audio(current_url)
 if st.button("Next_Sync", on_click=trigger_next):
     pass
 
-# 7. الجافا سكريبت المطور لمنع النوافذ المنبثقة
+# 7. الجافا سكريبت المطور
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
@@ -148,7 +136,7 @@ components.html(f"""
             title: '{current_name}',
             artist: 'الشيخ عبد الباسط',
             album: 'ربيع القلوب 2026',
-            artwork: [{{ src: '{img_url}', sizes: '512x512', type: 'image/png' }}]
+            artwork: [{{ src: 'https://archive.org/download/audio30__20260210/assets/quran.png', sizes: '512x512', type: 'image/png' }}]
         }});
         navigator.mediaSession.setActionHandler('nexttrack', function() {{
             const btn = window.parent.document.querySelector('button[kind="secondary"]');
