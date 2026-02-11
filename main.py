@@ -76,9 +76,11 @@ talaawat_list = [
 ]
 titles = [x[0] for x in talaawat_list]
 
+
 # 5. منطق الانتقال
 def force_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
+
 
 # 6. الواجهة
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
@@ -97,7 +99,9 @@ if titles.index(selected_title) != st.session_state.current_index:
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
 # 7. المشغل الصوتي (Key متغير لضمان إعادة التحميل والتشغيل الفوري)
-st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:14px; margin-bottom:5px;'>🔔 جاري الاستماع: {current_name}</div>", unsafe_allow_html=True)
+st.markdown(
+    f"<div style='text-align:center; color:#f1d592; font-size:14px; margin-bottom:5px;'>🔔 جاري الاستماع: {current_name}</div>",
+    unsafe_allow_html=True)
 st.audio(current_url, key=f"play_{st.session_state.current_index}")
 
 # 8. زر مخفي لعملية الـ Trigger
@@ -107,7 +111,7 @@ st.button("NextTrigger", on_click=force_next)
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
-    
+
     // 1. تعريف التطبيق للنظام كمشغل ميديا
     if ('mediaSession' in navigator) {{
         navigator.mediaSession.metadata = new MediaMetadata({{
@@ -116,7 +120,7 @@ components.html(f"""
             album: 'ربيع القلوب 2026',
             artwork: [{{ src: 'https://archive.org/download/audio30__20260210/assets/quran.png', sizes: '512x512', type: 'image/png' }}]
         }});
-        
+
         // ربط أزرار الهاتف الخارجية بالبرنامج
         navigator.mediaSession.setActionHandler('nexttrack', function() {{
             window.parent.document.querySelector('button').click();
@@ -125,7 +129,7 @@ components.html(f"""
 
     if (audio) {{
         audio.play().catch(e => console.log("Waiting for interaction"));
-        
+
         // 2. الانتقال التلقائي المضمون
         audio.onended = function() {{
             var btn = window.parent.document.querySelector('button');
@@ -146,4 +150,5 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='footer'>برمجه وتطوير م/ مجدي إسماعيل © 2026<br>صدقة جارية | كل عام وأنتم بخير</div>", unsafe_allow_html=True)
+st.markdown("<div class='footer'>برمجه وتطوير م/ مجدي إسماعيل © 2026<br>صدقة جارية | كل عام وأنتم بخير</div>",
+            unsafe_allow_html=True)
