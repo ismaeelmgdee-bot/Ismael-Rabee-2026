@@ -13,15 +13,19 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم الصافي (Clean UI)
+# 3. التصميم الصافي (Clean UI) وإخفاء كل زوائد ستريم ليت
 st.markdown("""
     <style>
+    /* إخفاء كل ما يمت لـ Streamlit بصلة */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
     div[data-testid="stStatusWidget"] {display: none;}
     .stDeployButton {display: none;}
+
+    /* إخفاء أزرار الإدارة في أسفل اليمين لنسخة الكلاود */
     iframe[title="Manage app"] {display: none !important;}
+    button[title="View source"] {display: none !important;}
 
     .stApp {
         background-color: #0d1117;
@@ -30,35 +34,41 @@ st.markdown("""
         overflow: hidden;
     }
 
-    .main-title { 
-        color: #d4af37; text-align: center; font-family: 'Amiri', serif; 
-        font-size: 26px; margin-bottom: 10px; text-shadow: 2px 2px 5px #000;
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 0rem !important;
     }
 
-    audio { width: 100%; height: 45px; border-radius: 50px; border: 2px solid #d4af37; }
+    .main-title { 
+        color: #d4af37; text-align: center; font-family: 'Amiri', serif; 
+        font-size: 24px; margin-bottom: 10px; text-shadow: 2px 2px 5px #000;
+    }
+
+    audio { width: 100%; height: 40px; border-radius: 50px; border: 2px solid #d4af37; }
 
     .dev-footer {
-        text-align: center; padding: 12px; margin-top: 20px;
+        text-align: center; padding: 10px; margin-top: 20px;
         border-top: 1px solid rgba(212,175,55,0.3);
-        background: rgba(0,0,0,0.4); border-radius: 12px;
+        background: rgba(0,0,0,0.3); border-radius: 10px;
     }
     .dev-footer a { color: #d4af37; text-decoration: none; font-weight: bold; }
 
+    /* الفانوس المتحرك */
     .lantern-container {
         position: fixed; top: -15px; left: 15px; z-index: 9999;
         animation: swing 3s infinite ease-in-out alternate;
         transform-origin: top center;
     }
-    .lantern-img { width: 55px; filter: drop-shadow(0 0 10px #ffeb3b); }
-    @keyframes swing { 0% { transform: rotate(6deg); } 100% { transform: rotate(-6deg); } }
+    .lantern-img { width: 50px; filter: drop-shadow(0 0 10px #ffeb3b); }
+    @keyframes swing { 0% { transform: rotate(5deg); } 100% { transform: rotate(-5deg); } }
     </style>
-    
+
     <div class="lantern-container">
         <img src="https://cdn-icons-png.flaticon.com/512/3655/3655460.png" class="lantern-img">
     </div>
     """, unsafe_allow_html=True)
 
-# 4. الروابط والقائمة
+# 4. القائمة المعتمدة
 base = "https://archive.org/download/audio30__20260210/gethub"
 img_url = "https://archive.org/download/audio30__20260210/assets/quran.png"
 
@@ -100,19 +110,17 @@ talaawat_list = [
 ]
 titles = [x[0] for x in talaawat_list]
 
+# 5. منطق الانتقال الصامت
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-# 5. الواجهة (تكبير وتوسيط الأيقونة)
-st.markdown(f"""
-    <div style="display: flex; justify-content: center; align-items: center; padding-top: 15px; margin-bottom: 15px;">
-        <img src="{img_url}" width="200" style="filter: drop-shadow(0px 5px 15px rgba(0,0,0,0.6));">
-    </div>
-    """, unsafe_allow_html=True)
+# 6. الواجهة (استعادة نظام الشرق/اليمين والحجم الأصلي)
+col1, col2, col3 = st.columns([0.4, 1, 0.4])
+with col2: st.image(img_url, width=100) # العودة لعرض 100 والتموضع السابق
 
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
 
-# 6. زر الإضافة للشاشة الرئيسية
+# زر الإضافة للشاشة الرئيسية
 if st.button("📱 اضغط هنا لتثبيت التطبيق على هاتفك", key="install_btn"):
     st.toast("انقر على النقاط الثلاث (⋮) ثم 'الإضافة إلى الشاشة الرئيسية'", icon="📲")
 
@@ -123,13 +131,13 @@ if titles.index(selected_title) != st.session_state.current_index:
 
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
-st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:14px; margin: 10px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
 st.audio(current_url)
 
 if st.button("Next_Sync", on_click=trigger_next):
     pass
 
-# 7. الجافا سكريبت المطور
+# 7. الجافا سكريبت المطور لمنع النوافذ المنبثقة
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
@@ -149,7 +157,7 @@ components.html(f"""
     }}
 
     if (audio) {{
-        audio.play().catch(e => console.log("Ready"));
+        audio.play().catch(e => console.log("Silent Play Mode"));
         audio.onended = function() {{
             const btn = window.parent.document.querySelector('button[kind="secondary"]');
             if(btn) btn.click();
@@ -160,16 +168,16 @@ components.html(f"""
 
 # 8. منطقة المطور
 st.markdown(f"""
-    <div style="text-align: center; margin-top: 15px;">
+    <div style="text-align: center; margin-top: 10px;">
         <a href="{current_url}" target="_self" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold;">
-                📥 تحميل مباشر (MP3)
+            <button style="background-color: #2e7d32; color: white; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                📥 تحميل مباشر
             </button>
         </a>
     </div>
 
     <div class="dev-footer">
         برمجه وتطوير م/ <a href="https://www.facebook.com/share/1FuFVriwWP/" target="_blank">مجدي إسماعيل</a> © 2026<br>
-        <p style="margin-top:5px;">🌙 صدقة جارية لمن قام بنشره | استماع متواصل</p>
+        <p>🌙 صدقة جارية لمن قام بنشره | استماع متواصل </p>
     </div>
 """, unsafe_allow_html=True)
