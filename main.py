@@ -1,7 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# 1. إعدادات الصفحة - وضع الهاتف
+# 1. إعدادات الصفحة
 st.set_page_config(
     page_title="ربيع القلوب 2026",
     page_icon="assets/quran.png",
@@ -12,25 +12,25 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم المطور (واجهة أندرويد مصغرة)
+# 3. التصميم المطور (واجهة أندرويد احترافية بدون سكرول)
 st.markdown("""
     <style>
     .stApp { background-color: #0d1117; color: #ffffff; direction: rtl; overflow: hidden; }
-    h1 { color: #d4af37 !important; text-align: center; font-family: 'Amiri', serif; font-size: 22px !important; margin-top: -10px; }
-    .stSelectbox label { color: #d4af37 !important; font-size: 14px !important; }
-    audio { width: 100%; height: 40px; border-radius: 50px; background-color: #d4af37; }
-    .stButton button { background-color: #d4af37; color: #000; border-radius: 8px; font-weight: bold; height: 35px; font-size: 14px; }
-    .footer { text-align: center; color: #666; font-size: 10px; margin-top: 20px; }
-    /* تصغير المسافات بين العناصر */
+    h1 { color: #d4af37 !important; text-align: center; font-family: 'Amiri', serif; font-size: 24px !important; margin-top: 5px; }
+    .stSelectbox label { color: #d4af37 !important; font-size: 15px !important; }
+    audio { width: 100%; height: 45px; border-radius: 50px; background-color: #d4af37; margin-top: 5px; }
+    .stButton button { background-color: #d4af37; color: #000; border-radius: 10px; font-weight: bold; height: 40px; font-size: 15px; }
+    .footer { text-align: center; color: #666; font-size: 11px; margin-top: 15px; }
     .block-container { padding-top: 1rem !important; padding-bottom: 0rem !important; }
-    div[data-testid="stVerticalBlock"] > div { padding: 2px 0px; }
+    div[data-testid="stVerticalBlock"] > div { padding: 4px 0px; }
+    /* إخفاء شريط السكرول لجمالية واجهة الموبايل */
+    ::-webkit-scrollbar { display: none; }
     </style>
     """, unsafe_allow_html=True)
 
 # 4. قاعدة بيانات الروابط الموحدة
 base = "https://archive.org/download/audio30__20260210/gethub"
 
-# بناء القائمة (تأكدنا من عدم التكرار)
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
     ("الجوهرة 2 - سورة يوسف (حلب 1956)", f"{base}/audio14_.mp3"),
@@ -69,7 +69,7 @@ talaawat_list = [
     ("الجوهرة 34 - تلاوة مباركة 34", f"{base}/audio34_.mp3")
 ]
 
-# إضافة الجواهر المتبقية برمجياً
+# إضافة الجواهر المتبقية (من 21 لـ 34) مع تلافي النواقص
 for i in range(21, 35):
     talaawat_list.append((f"الجوهرة {i} - تلاوة مباركة {i}", f"{base}/audio{i}_.mp3"))
 
@@ -89,21 +89,24 @@ def prev_track():
         st.session_state.current_index -= 1
         st.session_state.selector_key = titles[st.session_state.current_index]
 
-# 6. الواجهة البرمجية (Header)
-col1, col2, col3 = st.columns([1, 1, 1])
+# 6. الواجهة البرمجية (الأيقونة الكبيرة والعنوان)
+col1, col2, col3 = st.columns([0.5, 1, 0.5])
 with col2:
-    st.image("assets/quran.png", width=60)
-st.markdown("<h1>🌙 ربيع القلوب</h1>", unsafe_allow_html=True)
+    # تم تكبير الأيقونة للضعف كما طلبت يا هندسة
+    st.image("assets/quran.png", width=120)
 
-# 7. التحكم
+st.markdown("<h1>🌙 تطبيق ربيع القلوب</h1>", unsafe_allow_html=True)
+
+# 7. أزرار التحكم
 col_p, col_n = st.columns(2)
 with col_p:
-    st.button("⏮️ السابق", on_click=prev_track, use_container_width=True)
+    st.button("⏮️ التلاوة السابقة", on_click=prev_track, use_container_width=True)
 with col_n:
-    st.button("التالي ⏭️", on_click=next_track, use_container_width=True)
+    st.button("التلاوة التالية ⏭️", on_click=next_track, use_container_width=True)
 
+# 8. قائمة الاختيار الذكية
 selected_title = st.selectbox(
-    "اختر التلاوة:",
+    "اختر من جواهر التلاوات:",
     titles,
     index=st.session_state.current_index,
     key="selector_key",
@@ -112,18 +115,30 @@ selected_title = st.selectbox(
 
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
-# 8. المشغل الصوتي مع خاصية التشغيل التلقائي
-st.markdown(f"<div style='text-align:center; font-size:14px; color:#d4af37;'>📖 {current_name}</div>", unsafe_allow_html=True)
-st.audio(current_url)
+st.markdown("---")
 
-# حقن جافا سكريبت للانتقال التلقائي عند انتهاء الصوت
+# 9. المشغل الصوتي مع مفتاح فريد للإجبار على التشغيل الفوري
+st.markdown(f"<div style='text-align:center; font-size:16px; color:#d4af37; font-weight:bold;'>📖 {current_name}</div>", unsafe_allow_html=True)
+
+# استخدام الـ URL كمفتاح يضمن إعادة تحميل المشغل فور تغيير الاختيار
+st.audio(current_url, key=f"play_{current_url}")
+
+# 10. حقن جافا سكريبت الاحترافية للتشغيل التلقائي المتسلسل
 components.html(
     f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
     if (audio) {{
+        audio.play(); // تشغيل تلقائي عند اختيار جوهرة جديدة
         audio.onended = function() {{
-            window.parent.document.querySelector('button[kind="secondary"]:last-child').click();
+            // البحث عن زر "التالي" والضغط عليه برمجياً
+            var buttons = window.parent.document.querySelectorAll('button');
+            for (var i = 0; i < buttons.length; i++) {{
+                if (buttons[i].innerText.includes('التالية')) {{
+                    buttons[i].click();
+                    break;
+                }}
+            }}
         }};
     }}
     </script>
@@ -131,15 +146,15 @@ components.html(
     height=0
 )
 
-# 9. زر التحميل المصغر
+# 11. زر التحميل الأنيق
 st.markdown(f"""
-    <div style="text-align: center; margin-top: 10px;">
+    <div style="text-align: center; margin-top: 15px;">
         <a href="{current_url}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 60%; font-size: 12px;">
-                📥 تحميل MP3
+            <button style="background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 70%; font-size: 14px;">
+                📥 تحميل الملف (MP3)
             </button>
         </a>
     </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='footer'>م/ مجدي إسماعيل © 2026 | صدقة جارية</div>", unsafe_allow_html=True)
+st.markdown("<div class='footer'>برمجه وتطوير م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
