@@ -13,30 +13,21 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم الصافي (Clean UI) وإخفاء كل زوائد ستريم ليت
+# 3. التصميم المطور (إخفاء الزوائد + زر التثبيت الذكي)
 st.markdown("""
     <style>
-    /* إخفاء كل ما يمت لـ Streamlit بصلة */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
     div[data-testid="stStatusWidget"] {display: none;}
     .stDeployButton {display: none;}
-
-    /* إخفاء أزرار الإدارة في أسفل اليمين لنسخة الكلاود */
     iframe[title="Manage app"] {display: none !important;}
-    button[title="View source"] {display: none !important;}
 
     .stApp {
         background-color: #0d1117;
         background-image: url("https://www.transparenttextures.com/patterns/islamic-art.png");
         color: #ffffff; direction: rtl;
         overflow: hidden;
-    }
-
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 0rem !important;
     }
 
     .main-title { 
@@ -46,14 +37,26 @@ st.markdown("""
 
     audio { width: 100%; height: 40px; border-radius: 50px; border: 2px solid #d4af37; }
 
+    /* زر إرشاد التثبيت */
+    .install-hint {
+        background: rgba(212, 175, 55, 0.15);
+        border: 1px dashed #d4af37;
+        color: #f1d592;
+        padding: 8px;
+        text-align: center;
+        border-radius: 10px;
+        font-size: 13px;
+        cursor: pointer;
+        margin: 10px 0;
+    }
+
     .dev-footer {
-        text-align: center; padding: 10px; margin-top: 20px;
+        text-align: center; padding: 10px; margin-top: 15px;
         border-top: 1px solid rgba(212,175,55,0.3);
         background: rgba(0,0,0,0.3); border-radius: 10px;
     }
     .dev-footer a { color: #d4af37; text-decoration: none; font-weight: bold; }
 
-    /* الفانوس المتحرك */
     .lantern-container {
         position: fixed; top: -15px; left: 15px; z-index: 9999;
         animation: swing 3s infinite ease-in-out alternate;
@@ -62,7 +65,7 @@ st.markdown("""
     .lantern-img { width: 50px; filter: drop-shadow(0 0 10px #ffeb3b); }
     @keyframes swing { 0% { transform: rotate(5deg); } 100% { transform: rotate(-5deg); } }
     </style>
-
+    
     <div class="lantern-container">
         <img src="https://cdn-icons-png.flaticon.com/512/3655/3655460.png" class="lantern-img">
     </div>
@@ -108,16 +111,17 @@ talaawat_list = [
 ]
 titles = [x[0] for x in talaawat_list]
 
-
-# 5. منطق الانتقال الصامت
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-
-# 6. الواجهة
+# 5. الواجهة
 col1, col2, col3 = st.columns([0.4, 1, 0.4])
 with col2: st.image("assets/quran.png", width=100)
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
+
+# عنصر الإرشاد للتثبيت
+if st.button("📱 اضغط هنا لتثبيت التطبيق على هاتفك", key="install_btn"):
+    st.toast("انقر على الثلاث نقاط (⋮) أعلى اليسار ثم اختر 'الإضافة إلى الشاشة الرئيسية'", icon="💡")
 
 selected_title = st.selectbox("", titles, index=st.session_state.current_index, label_visibility="collapsed")
 if titles.index(selected_title) != st.session_state.current_index:
@@ -126,21 +130,16 @@ if titles.index(selected_title) != st.session_state.current_index:
 
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
-# 7. المشغل الصوتي المستقر
-st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>",
-            unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
 st.audio(current_url)
 
-# زر مخفي للمزامنة (بدون استدعاء خارجي)
 if st.button("Next_Sync", on_click=trigger_next):
     pass
 
-# 8. الجافا سكريبت المطور لمنع النوافذ المنبثقة
+# 6. الجافا سكريبت المطور (MediaSession + Auto-Play)
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
-
-    // منع أي محاولة لفتح نوافذ جديدة تلقائياً
     window.open = function() {{ return null; }};
 
     if ('mediaSession' in navigator) {{
@@ -157,9 +156,8 @@ components.html(f"""
     }}
 
     if (audio) {{
-        audio.play().catch(e => console.log("Silent Play Mode"));
+        audio.play().catch(e => console.log("Silent Play"));
         audio.onended = function() {{
-            // الضغط على الزر المخفي داخل نفس البيئة دون فتح نافذة
             const btn = window.parent.document.querySelector('button[kind="secondary"]');
             if(btn) btn.click();
         }};
@@ -167,11 +165,11 @@ components.html(f"""
     </script>
     """, height=0)
 
-# 9. منطقة المطور النهائية والنظيفة
+# 7. التذييل
 st.markdown(f"""
     <div style="text-align: center; margin-top: 10px;">
         <a href="{current_url}" target="_self" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">
+            <button style="background-color: #2e7d32; color: white; padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">
                 📥 تحميل مباشر
             </button>
         </a>
