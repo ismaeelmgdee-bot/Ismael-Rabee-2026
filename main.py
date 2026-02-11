@@ -13,7 +13,7 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم الصافي (Clean UI)
+# 3. التصميم الصافي (Clean UI) مع تنسيق خاص للوضع المحلي
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -35,6 +35,17 @@ st.markdown("""
         font-size: 24px; margin-bottom: 10px; text-shadow: 2px 2px 5px #000;
     }
 
+    /* تنسيق مربع التشغيل المحلي */
+    .offline-mode {
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px dashed #d4af37;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    .offline-mode h4 { color: #f1d592; margin: 0; font-size: 14px; }
+    
     audio { width: 100%; height: 40px; border-radius: 50px; border: 2px solid #d4af37; }
 
     .dev-footer {
@@ -101,31 +112,61 @@ titles = [x[0] for x in talaawat_list]
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-# 5. الواجهة (العودة لخصائص quran.png الأصلية)
+# 5. الواجهة الأساسية
 col1, col2, col3 = st.columns([0.4, 1, 0.4])
 with col2: 
-    st.image("assets/quran.png", width=100) # استخدام المسار المحلي والحجم الأصلي
+    st.image("assets/quran.png", width=100) # الأيقونة الأصلية
 
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
 
-# 6. زر الإضافة للشاشة الرئيسية
-if st.button("📱 اضغط هنا لتثبيت التطبيق على هاتفك", key="install_btn"):
-    st.toast("انقر على النقاط الثلاث (⋮) ثم 'الإضافة إلى الشاشة الرئيسية'", icon="📲")
+# 6. قسم التشغيل المحلي (جديد!)
+st.markdown("""
+    <div class='offline-mode'>
+        <h4>📂 تشغيل من الذاكرة (بدون إنترنت)</h4>
+    </div>
+""", unsafe_allow_html=True)
 
-selected_title = st.selectbox("", titles, index=st.session_state.current_index, label_visibility="collapsed")
-if titles.index(selected_title) != st.session_state.current_index:
-    st.session_state.current_index = titles.index(selected_title)
-    st.rerun()
+# رافع الملفات للتشغيل المحلي
+local_file = st.file_uploader("اختر جوهرة محملة سابقاً:", type=["mp3"], label_visibility="collapsed")
 
-current_name, current_url = talaawat_list[st.session_state.current_index]
+# 7. منطق التبديل بين الأونلاين والمحلي
+if local_file is not None:
+    # --- وضع التشغيل المحلي ---
+    st.success(f"يتم الآن تشغيل: {local_file.name}")
+    st.audio(local_file)
+    current_name = "تلاوة محلية من الهاتف" # اسم افتراضي للجافا سكريبت
+else:
+    # --- وضع التشغيل السحابي (الأصلي) ---
+    if st.button("📱 اضغط هنا لتثبيت التطبيق", key="install_btn"):
+        st.toast("انقر على النقاط الثلاث (⋮) ثم 'الإضافة إلى الشاشة الرئيسية'", icon="📲")
 
-st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
-st.audio(current_url)
+    selected_title = st.selectbox("", titles, index=st.session_state.current_index, label_visibility="collapsed")
+    
+    if titles.index(selected_title) != st.session_state.current_index:
+        st.session_state.current_index = titles.index(selected_title)
+        st.rerun()
 
-if st.button("Next_Sync", on_click=trigger_next):
-    pass
+    current_name, current_url = talaawat_list[st.session_state.current_index]
+    
+    st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
+    st.audio(current_url)
+    
+    # أزرار التحكم السحابية
+    if st.button("Next_Sync", on_click=trigger_next):
+        pass
 
-# 7. الجافا سكريبت المطور
+    # زر التحميل يظهر فقط في الوضع السحابي
+    st.markdown(f"""
+        <div style="text-align: center; margin-top: 10px;">
+            <a href="{current_url}" target="_self" style="text-decoration: none;">
+                <button style="background-color: #2e7d32; color: white; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                    📥 تحميل مباشر
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
+
+# 8. الجافا سكريبت المطور
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
@@ -145,7 +186,7 @@ components.html(f"""
     }}
 
     if (audio) {{
-        audio.play().catch(e => console.log("Silent Play Mode"));
+        audio.play().catch(e => console.log("Ready"));
         audio.onended = function() {{
             const btn = window.parent.document.querySelector('button[kind="secondary"]');
             if(btn) btn.click();
@@ -154,16 +195,8 @@ components.html(f"""
     </script>
     """, height=0)
 
-# 8. منطقة المطور
+# 9. التذييل
 st.markdown(f"""
-    <div style="text-align: center; margin-top: 10px;">
-        <a href="{current_url}" target="_self" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">
-                📥 تحميل مباشر
-            </button>
-        </a>
-    </div>
-
     <div class="dev-footer">
         برمجه وتطوير م/ <a href="https://www.facebook.com/share/1FuFVriwWP/" target="_blank">مجدي إسماعيل</a> © 2026<br>
         <p>🌙 صدقة جارية لمن قام بنشره | استماع متواصل </p>
