@@ -13,55 +13,47 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. سحر التصميم (إخفاء الزوائد وإبراز المطور)
+# 3. التصميم الصافي (Clean UI) وإخفاء كل زوائد ستريم ليت
 st.markdown("""
     <style>
-    /* إخفاء قوائم ستريم ليت العلوية والسفلية تماماً */
+    /* إخفاء كل ما يمت لـ Streamlit بصلة */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
+    div[data-testid="stStatusWidget"] {display: none;}
     .stDeployButton {display: none;}
     
-    /* خلفية وتنسيق عام */
+    /* إخفاء أزرار الإدارة في أسفل اليمين لنسخة الكلاود */
+    iframe[title="Manage app"] {display: none !important;}
+    button[title="View source"] {display: none !important;}
+
     .stApp {
         background-color: #0d1117;
         background-image: url("https://www.transparenttextures.com/patterns/islamic-art.png");
         color: #ffffff; direction: rtl;
+        overflow: hidden;
     }
     
-    /* ضبط المسافات لمنع السكرول وضمان ظهور اسم المطور */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 0rem !important;
-        max-width: 100%;
     }
 
-    /* تنسيق العنوان */
     .main-title { 
         color: #d4af37; text-align: center; font-family: 'Amiri', serif; 
         font-size: 24px; margin-bottom: 10px; text-shadow: 2px 2px 5px #000;
     }
 
-    /* تنسيق المشغل والقوائم */
     audio { width: 100%; height: 40px; border-radius: 50px; border: 2px solid #d4af37; }
-    .stSelectbox label { color: #d4af37 !important; font-size: 14px !important; }
     
-    /* تنسيق منطقة المطور لتكون واضحة جداً */
     .dev-footer {
-        text-align: center;
-        padding: 10px;
-        margin-top: 20px;
+        text-align: center; padding: 10px; margin-top: 20px;
         border-top: 1px solid rgba(212,175,55,0.3);
-        background: rgba(0,0,0,0.3);
-        border-radius: 10px;
+        background: rgba(0,0,0,0.3); border-radius: 10px;
     }
-    .dev-footer a { color: #d4af37; text-decoration: none; font-weight: bold; font-size: 14px; }
-    .dev-footer p { color: #888; font-size: 11px; margin: 0; }
+    .dev-footer a { color: #d4af37; text-decoration: none; font-weight: bold; }
 
-    /* إخفاء الأزرار البرمجية */
-    .stButton { display: none; }
-    
-    /* الفانوس */
+    /* الفانوس المتحرك */
     .lantern-container {
         position: fixed; top: -15px; left: 15px; z-index: 9999;
         animation: swing 3s infinite ease-in-out alternate;
@@ -76,7 +68,7 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
-# 4. القائمة (نفس القائمة المعتمدة)
+# 4. القائمة المعتمدة
 base = "https://archive.org/download/audio30__20260210/gethub"
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
@@ -116,16 +108,15 @@ talaawat_list = [
 ]
 titles = [x[0] for x in talaawat_list]
 
-# 5. المنطق
+# 5. منطق الانتقال الصامت
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-# 6. الواجهة (Clean UI)
+# 6. الواجهة
 col1, col2, col3 = st.columns([0.4, 1, 0.4])
 with col2: st.image("assets/quran.png", width=100)
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
 
-# Selectbox
 selected_title = st.selectbox("", titles, index=st.session_state.current_index, label_visibility="collapsed")
 if titles.index(selected_title) != st.session_state.current_index:
     st.session_state.current_index = titles.index(selected_title)
@@ -133,19 +124,22 @@ if titles.index(selected_title) != st.session_state.current_index:
 
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
-# 7. المشغل الصوتي
+# 7. المشغل الصوتي المستقر
 st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
-audio_placeholder = st.empty()
-audio_placeholder.audio(current_url)
+st.audio(current_url)
 
-# زر مخفي للمزامنة
-st.button("Next_Sync", on_click=trigger_next)
+# زر مخفي للمزامنة (بدون استدعاء خارجي)
+if st.button("Next_Sync", on_click=trigger_next):
+    pass
 
-# 8. الجافا سكريبت (MediaSession + Auto-Play)
+# 8. الجافا سكريبت المطور لمنع النوافذ المنبثقة
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
     
+    // منع أي محاولة لفتح نوافذ جديدة تلقائياً
+    window.open = function() {{ return null; }};
+
     if ('mediaSession' in navigator) {{
         navigator.mediaSession.metadata = new MediaMetadata({{
             title: '{current_name}',
@@ -154,32 +148,34 @@ components.html(f"""
             artwork: [{{ src: 'https://archive.org/download/audio30__20260210/assets/quran.png', sizes: '512x512', type: 'image/png' }}]
         }});
         navigator.mediaSession.setActionHandler('nexttrack', function() {{
-            window.parent.document.querySelector('button').click();
+            const btn = window.parent.document.querySelector('button[kind="secondary"]');
+            if(btn) btn.click();
         }});
     }}
 
     if (audio) {{
-        audio.play().catch(e => console.log("Waiting..."));
+        audio.play().catch(e => console.log("Silent Play Mode"));
         audio.onended = function() {{
-            var btn = window.parent.document.querySelector('button');
+            // الضغط على الزر المخفي داخل نفس البيئة دون فتح نافذة
+            const btn = window.parent.document.querySelector('button[kind="secondary"]');
             if(btn) btn.click();
         }};
     }}
     </script>
     """, height=0)
 
-# 9. التذييل (المنطقة الواضحة)
+# 9. منطقة المطور النهائية والنظيفة
 st.markdown(f"""
     <div style="text-align: center; margin-top: 10px;">
-        <a href="{current_url}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">
-                📥 تحميل (MP3)
+        <a href="{current_url}" target="_self" style="text-decoration: none;">
+            <button style="background-color: #2e7d32; color: white; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                📥 تحميل مباشر
             </button>
         </a>
     </div>
 
     <div class="dev-footer">
         برمجه وتطوير م/ <a href="https://www.facebook.com/share/1FuFVriwWP/" target="_blank">مجدي إسماعيل</a> © 2026<br>
-        <p>🌙 صدقة جارية | نسخة الأندرويد النهائية</p>
+        <p>🌙 صدقة جارية | استماع متواصل بدون توقف</p>
     </div>
 """, unsafe_allow_html=True)
