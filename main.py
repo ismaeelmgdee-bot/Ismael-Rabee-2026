@@ -12,18 +12,17 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم المطور (واجهة أندرويد احترافية بدون سكرول)
+# 3. التصميم المطور (واجهة أندرويد احترافية)
 st.markdown("""
     <style>
-    .stApp { background-color: #0d1117; color: #ffffff; direction: rtl; overflow: hidden; }
+    .stApp { background-color: #0d1117; color: #ffffff; direction: rtl; }
     h1 { color: #d4af37 !important; text-align: center; font-family: 'Amiri', serif; font-size: 24px !important; margin-top: 5px; }
     .stSelectbox label { color: #d4af37 !important; font-size: 15px !important; }
     audio { width: 100%; height: 45px; border-radius: 50px; background-color: #d4af37; margin-top: 5px; }
-    .stButton button { background-color: #d4af37; color: #000; border-radius: 10px; font-weight: bold; height: 40px; font-size: 15px; }
+    .stButton button { background-color: #d4af37 !important; color: #000 !important; border-radius: 10px; font-weight: bold; height: 40px; }
     .footer { text-align: center; color: #666; font-size: 11px; margin-top: 15px; }
-    .block-container { padding-top: 1rem !important; padding-bottom: 0rem !important; }
-    div[data-testid="stVerticalBlock"] > div { padding: 4px 0px; }
-    /* إخفاء شريط السكرول لجمالية واجهة الموبايل */
+    .block-container { padding-top: 1rem !important; }
+    /* إخفاء السكرول بار */
     ::-webkit-scrollbar { display: none; }
     </style>
     """, unsafe_allow_html=True)
@@ -69,42 +68,42 @@ talaawat_list = [
     ("الجوهرة 34 - تلاوة مباركة 34", f"{base}/audio34_.mp3")
 ]
 
-# إضافة الجواهر المتبقية (من 21 لـ 34) مع تلافي النواقص
 for i in range(21, 35):
     talaawat_list.append((f"الجوهرة {i} - تلاوة مباركة {i}", f"{base}/audio{i}_.mp3"))
 
 titles = [x[0] for x in talaawat_list]
 
+
 # 5. دوال التنقل
 def sync_selection():
     st.session_state.current_index = titles.index(st.session_state.selector_key)
+
 
 def next_track():
     if st.session_state.current_index < len(talaawat_list) - 1:
         st.session_state.current_index += 1
         st.session_state.selector_key = titles[st.session_state.current_index]
 
+
 def prev_track():
     if st.session_state.current_index > 0:
         st.session_state.current_index -= 1
         st.session_state.selector_key = titles[st.session_state.current_index]
 
-# 6. الواجهة البرمجية (الأيقونة الكبيرة والعنوان)
+
+# 6. الواجهة (الأيقونة والعنوان)
 col1, col2, col3 = st.columns([0.5, 1, 0.5])
 with col2:
-    # تم تكبير الأيقونة للضعف كما طلبت يا هندسة
     st.image("assets/quran.png", width=120)
-
 st.markdown("<h1>🌙 تطبيق ربيع القلوب</h1>", unsafe_allow_html=True)
 
-# 7. أزرار التحكم
+# 7. الأزرار
 col_p, col_n = st.columns(2)
 with col_p:
-    st.button("⏮️ التلاوة السابقة", on_click=prev_track, use_container_width=True)
+    st.button("⏮️ السابق", on_click=prev_track, use_container_width=True)
 with col_n:
-    st.button("التلاوة التالية ⏭️", on_click=next_track, use_container_width=True)
+    st.button("التالي ⏭️", on_click=next_track, use_container_width=True)
 
-# 8. قائمة الاختيار الذكية
 selected_title = st.selectbox(
     "اختر من جواهر التلاوات:",
     titles,
@@ -117,24 +116,27 @@ current_name, current_url = talaawat_list[st.session_state.current_index]
 
 st.markdown("---")
 
-# 9. المشغل الصوتي مع مفتاح فريد للإجبار على التشغيل الفوري
-st.markdown(f"<div style='text-align:center; font-size:16px; color:#d4af37; font-weight:bold;'>📖 {current_name}</div>", unsafe_allow_html=True)
+# 8. المشغل الصوتي (تم حذف الـ key المسبب للخطأ)
+st.markdown(f"<div style='text-align:center; font-size:16px; color:#d4af37; font-weight:bold;'>📖 {current_name}</div>",
+            unsafe_allow_html=True)
+st.audio(current_url)
 
-# استخدام الـ URL كمفتاح يضمن إعادة تحميل المشغل فور تغيير الاختيار
-st.audio(current_url, key=f"play_{current_url}")
-
-# 10. حقن جافا سكريبت الاحترافية للتشغيل التلقائي المتسلسل
+# 9. ذكاء الجافا سكريبت (للتشغيل التلقائي والمزامنة)
 components.html(
     f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
     if (audio) {{
-        audio.play(); // تشغيل تلقائي عند اختيار جوهرة جديدة
+        // كود لضمان أن المتصفح يدرك تغيير الرابط ويشغله فوراً
+        if (audio.src != "{current_url}") {{
+            audio.src = "{current_url}";
+            audio.play();
+        }}
+
         audio.onended = function() {{
-            // البحث عن زر "التالي" والضغط عليه برمجياً
             var buttons = window.parent.document.querySelectorAll('button');
             for (var i = 0; i < buttons.length; i++) {{
-                if (buttons[i].innerText.includes('التالية')) {{
+                if (buttons[i].innerText.includes('التالي')) {{
                     buttons[i].click();
                     break;
                 }}
@@ -146,15 +148,16 @@ components.html(
     height=0
 )
 
-# 11. زر التحميل الأنيق
+# 10. زر التحميل
 st.markdown(f"""
     <div style="text-align: center; margin-top: 15px;">
         <a href="{current_url}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 70%; font-size: 14px;">
+            <button style="background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 70%;">
                 📥 تحميل الملف (MP3)
             </button>
         </a>
     </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='footer'>برمجه وتطوير م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>", unsafe_allow_html=True)
+st.markdown("<div class='footer'>برمجه وتطوير م/ مجدي إسماعيل © 2026<br>صدقة جارية لكل من نشرها</div>",
+            unsafe_allow_html=True)
