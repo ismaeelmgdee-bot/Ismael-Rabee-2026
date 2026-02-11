@@ -1,52 +1,38 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
-# 1. إعدادات الصفحة (أندرويد ستايل)
+# 1. إعدادات الصفحة
 st.set_page_config(
     page_title="ربيع القلوب 2026",
-    page_icon="🌙",
+    page_icon="assets/quran.png",
     layout="centered"
 )
 
-# 2. تهيئة الذاكرة
+# 2. تهيئة الذاكرة للتنقل
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. واجهة "الجمال والتميز" (خلفية هادئة وألوان مريحة)
+# 3. التصميم الملكي
 st.markdown("""
     <style>
-    .stApp {
-        background-color: #0d1117;
-        background-image: url("https://www.transparenttextures.com/patterns/islamic-art.png");
-        color: #ffffff; direction: rtl;
-    }
-    .main-title { 
-        color: #d4af37; text-align: center; font-family: 'Amiri', serif; 
-        font-size: 30px; margin-top: -10px; text-shadow: 2px 2px 5px #000;
-    }
-    .ramadan-banner { 
-        background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
-        text-align: center; color: #f1d592; padding: 10px; font-size: 18px; 
-        border-radius: 15px; margin: 10px 0; border: 1px solid rgba(212,175,55,0.2);
-    }
-    /* تنسيق المشغل الصوتي */
-    audio { width: 100%; height: 45px; border-radius: 50px; border: 2px solid #d4af37; box-shadow: 0px 4px 15px rgba(0,0,0,0.5); }
-    
-    /* تنسيق القائمة المنسدلة */
-    .stSelectbox label { color: #d4af37 !important; font-size: 16px !important; font-weight: bold; }
-    
-    /* منع السكرول وإخفاء الأزرار التقنية */
-    ::-webkit-scrollbar { display: none; }
-    .block-container { padding-top: 1.5rem !important; }
-    .stButton { display: none; } /* إخفاء زر الـ Trigger لجمالية الواجهة */
-    
-    .footer { text-align: center; color: #888; font-size: 12px; margin-top: 30px; }
-    .footer a { color: #d4af37; text-decoration: none; font-weight: bold; }
+    .stApp { background-color: #0d1117; color: #ffffff; direction: rtl; }
+    h1 { color: #d4af37 !important; text-align: center; font-family: 'Amiri', serif; text-shadow: 2px 2px 4px #000; }
+    .stSelectbox label { color: #d4af37 !important; font-size: 18px; }
+    audio { width: 100%; border-radius: 50px; background-color: #d4af37; margin-top: 10px; }
+    .stButton button { background-color: #d4af37; color: #000; border-radius: 10px; font-weight: bold; width: 100%; }
+    .stButton button:hover { background-color: #f1d592; color: #000; border: 1px solid #fff; }
+    .footer { text-align: center; color: #666; font-size: 12px; margin-top: 50px; }
     </style>
     """, unsafe_allow_html=True)
 
-# 4. قاعدة بيانات الجواهر (34 جوهرة)
+# 4. الأيقونة والعنوان
+col1, col2, col3 = st.columns([1, 1, 1])
+with col2:
+    st.image("assets/quran.png", width=100)
+st.markdown("<h1 style='margin-top: -20px;'>🌙 تطبيق ربيع القلوب</h1>", unsafe_allow_html=True)
+
+# 5. قاعدة بيانات الروابط الموحدة
 base = "https://archive.org/download/audio30__20260210/gethub"
+
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
     ("الجوهرة 2 - سورة يوسف (حلب 1956)", f"{base}/audio14_.mp3"),
@@ -68,6 +54,7 @@ talaawat_list = [
     ("الجوهرة 18 - تلاوة مباركة 6", f"{base}/audio6_.mp3"),
     ("الجوهرة 19 - تلاوة مباركة 9", f"{base}/audio9_.mp3"),
     ("الجوهرة 20 - تلاوة ختامية", f"{base}/audio1_.mp3"),
+    # الإضافات الجديدة (الجواهر الـ 14 الإضافية)
     ("الجوهرة 21 - تلاوة مباركة 21", f"{base}/audio21_.mp3"),
     ("الجوهرة 22 - تلاوة مباركة 22", f"{base}/audio22_.mp3"),
     ("الجوهرة 23 - تلاوة مباركة 23", f"{base}/audio23_.mp3"),
@@ -83,72 +70,63 @@ talaawat_list = [
     ("الجوهرة 33 - تلاوة مباركة 33", f"{base}/audio33_.mp3"),
     ("الجوهرة 34 - تلاوة مباركة 34", f"{base}/audio34_.mp3")
 ]
+
+# إضافة الجواهر من 21 إلى 34 برمجياً لضمان الدقة
+for i in range(21, 35):
+    talaawat_list.append((f"الجوهرة {i} - تلاوة مباركة {i}", f"{base}/audio{i}_.mp3"))
+
+# 6. دوال التنقل مع مزامنة القائمة
+def update_index():
+    st.session_state.current_index = titles.index(st.session_state.selector_key)
+
+def next_track():
+    if st.session_state.current_index < len(talaawat_list) - 1:
+        st.session_state.current_index += 1
+        st.session_state.selector_key = talaawat_list[st.session_state.current_index][0]
+
+def prev_track():
+    if st.session_state.current_index > 0:
+        st.session_state.current_index -= 1
+        st.session_state.selector_key = talaawat_list[st.session_state.current_index][0]
+
+# 7. أزرار التحكم
+col_p, col_n = st.columns(2)
+with col_p:
+    st.button("⏮️ التلاوة السابقة", on_click=prev_track)
+with col_n:
+    st.button("التلاوة التالية ⏭️", on_click=next_track)
+
+# 8. قائمة الاختيار
 titles = [x[0] for x in talaawat_list]
+selected_title = st.selectbox(
+    "اختر من جواهر التلاوات:",
+    titles,
+    index=st.session_state.current_index,
+    key="selector_key",
+    on_change=update_index
+)
 
-# 5. منطق الانتقال التلقائي
-def trigger_next():
-    st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
-
-# 6. بناء الواجهة
-st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns([0.5, 1, 0.5])
-with col2:
-    st.image("assets/quran.png", width=140)
-
-st.markdown("<div class='ramadan-banner'>✨ رمضان كريم تقبل الله الصيام والقيام ✨</div>", unsafe_allow_html=True)
-
-# القائمة المنسدلة (بدون تعارض keys)
-selected_title = st.selectbox("اختر بداية الورد الإيماني:", titles, index=st.session_state.current_index)
-
-# تحديث الحالة عند التغيير اليدوي
-if titles.index(selected_title) != st.session_state.current_index:
-    st.session_state.current_index = titles.index(selected_title)
-    st.rerun()
-
+# جلب البيانات الحالية
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
-# 7. المشغل الصوتي (الحل النهائي: بدون مفتاح داخلي لتجنب TypeError)
-st.markdown(f"<div style='text-align:center; color:#f1d592; margin-bottom:10px;'>🔔 استماع متواصل: {current_name}</div>", unsafe_allow_html=True)
-audio_placeholder = st.empty()
-audio_placeholder.audio(current_url)
+st.markdown("---")
 
-# زر مخفي للمزامنة مع الجافا سكريبت
-st.button("Next_Sync", on_click=trigger_next)
+# 9. المشغل الصوتي
+st.subheader(f"📖 {current_name}")
+st.audio(current_url)
 
-# 8. حقن الجافا سكريبت (MediaSession + Auto-Advance)
-components.html(f"""
-    <script>
-    var audio = window.parent.document.querySelector('audio');
-    
-    // تعريف الميديا في النظام (للقفل والإشعارات)
-    if ('mediaSession' in navigator) {{
-        navigator.mediaSession.metadata = new MediaMetadata({{
-            title: '{current_name}',
-            artist: 'الشيخ عبد الباسط عبد الصمد',
-            album: 'ربيع القلوب 2026',
-            artwork: [{{ src: 'https://archive.org/download/audio30__20260210/assets/quran.png', sizes: '512x512', type: 'image/png' }}]
-        }});
-        
-        // ربط أزرار التحكم الخارجية
-        navigator.mediaSession.setActionHandler('nexttrack', function() {{
-            window.parent.document.querySelector('button').click();
-        }});
-    }}
+# 10. زر التحميل
+st.markdown(f"""
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{current_url}" target="_blank" download style="text-decoration: none;">
+            <button style="background-color: #2e7d32; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 80%;">
+                📥 تحميل الملف الصوتي (MP3)
+            </button>
+        </a>
+    </div>
+""", unsafe_allow_html=True)
 
-    if (audio) {{
-        audio.play().catch(e => console.log("Waiting..."));
-        
-        // الانتقال الآلي عند النهاية
-        audio.onended = function() {{
-            var btn = window.parent.document.querySelector('button');
-            if(btn) btn.click();
-        }};
-    }}
-    </script>
-    """, height=0)
-
-# 9. التذييل الرمضاني مع رابط المطور
+# تذييل الصفحة
 st.markdown(f"""
     <div class='footer'>
         برمجه وتطوير م/ <a href="https://www.facebook.com/share/1FuFVriwWP/" target="_blank">مجدي إسماعيل</a> © 2026<br>
