@@ -22,7 +22,7 @@ st.markdown("""
     footer {visibility: hidden;}
     div[data-testid="stStatusWidget"] {display: none;}
     .stDeployButton {display: none;}
-    
+
     /* إخفاء أزرار الإدارة في أسفل اليمين لنسخة الكلاود */
     iframe[title="Manage app"] {display: none !important;}
     button[title="View source"] {display: none !important;}
@@ -33,7 +33,7 @@ st.markdown("""
         color: #ffffff; direction: rtl;
         overflow: hidden;
     }
-    
+
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 0rem !important;
@@ -45,7 +45,7 @@ st.markdown("""
     }
 
     audio { width: 100%; height: 40px; border-radius: 50px; border: 2px solid #d4af37; }
-    
+
     .dev-footer {
         text-align: center; padding: 10px; margin-top: 20px;
         border-top: 1px solid rgba(212,175,55,0.3);
@@ -62,7 +62,7 @@ st.markdown("""
     .lantern-img { width: 50px; filter: drop-shadow(0 0 10px #ffeb3b); }
     @keyframes swing { 0% { transform: rotate(5deg); } 100% { transform: rotate(-5deg); } }
     </style>
-    
+
     <div class="lantern-container">
         <img src="https://cdn-icons-png.flaticon.com/512/3655/3655460.png" class="lantern-img">
     </div>
@@ -108,9 +108,11 @@ talaawat_list = [
 ]
 titles = [x[0] for x in talaawat_list]
 
+
 # 5. منطق الانتقال الصامت
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
+
 
 # 6. الواجهة
 col1, col2, col3 = st.columns([0.4, 1, 0.4])
@@ -125,7 +127,8 @@ if titles.index(selected_title) != st.session_state.current_index:
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
 # 7. المشغل الصوتي المستقر
-st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>",
+            unsafe_allow_html=True)
 st.audio(current_url)
 
 # زر مخفي للمزامنة (بدون استدعاء خارجي)
@@ -136,7 +139,7 @@ if st.button("Next_Sync", on_click=trigger_next):
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
-    
+
     // منع أي محاولة لفتح نوافذ جديدة تلقائياً
     window.open = function() {{ return null; }};
 
@@ -176,6 +179,6 @@ st.markdown(f"""
 
     <div class="dev-footer">
         برمجه وتطوير م/ <a href="https://www.facebook.com/share/1FuFVriwWP/" target="_blank">مجدي إسماعيل</a> © 2026<br>
-        <p>🌙 صدقة جارية | استماع متواصل بدون توقف</p>
+        <p>🌙 صدقة جارية لمن قام بنشره | استماع متواصل </p>
     </div>
 """, unsafe_allow_html=True)
