@@ -13,7 +13,7 @@ st.set_page_config(
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم المطور (إخفاء الزوائد + تنسيق الأيقونة الكبيرة)
+# 3. التصميم الصافي (Clean UI)
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -58,9 +58,9 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
-# 4. قاعدة البيانات (الرابط الموحد)
+# 4. الروابط والقائمة
 base = "https://archive.org/download/audio30__20260210/gethub"
-img_url = "https://archive.org/download/audio30__20260210/assets/quran.png" # الرابط المباشر للأيقونة
+img_url = "https://archive.org/download/audio30__20260210/assets/quran.png"
 
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
@@ -103,16 +103,16 @@ titles = [x[0] for x in talaawat_list]
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-# 5. الواجهة (تصحيح ظهور الأيقونة وتوسيطها)
+# 5. الواجهة (تكبير وتوسيط الأيقونة)
 st.markdown(f"""
-    <div style="display: flex; justify-content: center; align-items: center; padding-top: 10px; margin-bottom: 10px;">
+    <div style="display: flex; justify-content: center; align-items: center; padding-top: 15px; margin-bottom: 15px;">
         <img src="{img_url}" width="200" style="filter: drop-shadow(0px 5px 15px rgba(0,0,0,0.6));">
     </div>
     """, unsafe_allow_html=True)
 
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
 
-# زر التثبيت
+# 6. زر الإضافة للشاشة الرئيسية
 if st.button("📱 اضغط هنا لتثبيت التطبيق على هاتفك", key="install_btn"):
     st.toast("انقر على النقاط الثلاث (⋮) ثم 'الإضافة إلى الشاشة الرئيسية'", icon="📲")
 
@@ -129,7 +129,7 @@ st.audio(current_url)
 if st.button("Next_Sync", on_click=trigger_next):
     pass
 
-# 6. الجافا سكريبت (MediaSession + Auto-Advance)
+# 7. الجافا سكريبت المطور
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
@@ -158,7 +158,7 @@ components.html(f"""
     </script>
     """, height=0)
 
-# 7. التذييل (المطور مجدي إسماعيل)
+# 8. منطقة المطور
 st.markdown(f"""
     <div style="text-align: center; margin-top: 15px;">
         <a href="{current_url}" target="_self" style="text-decoration: none;">
