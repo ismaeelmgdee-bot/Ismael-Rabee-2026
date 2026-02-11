@@ -1,72 +1,74 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# 1. إعدادات الصفحة (أندرويد ستايل)
+# 1. إعدادات الصفحة
 st.set_page_config(
     page_title="ربيع القلوب 2026",
     page_icon="🌙",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
 # 2. تهيئة الذاكرة
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. سحر التصميم (CSS) - الفانوس، إخفاء السكرول، والوضع الليلي
+# 3. سحر التصميم (إخفاء الزوائد وإبراز المطور)
 st.markdown("""
     <style>
-    /* إعدادات الخلفية والخطوط */
+    /* إخفاء قوائم ستريم ليت العلوية والسفلية تماماً */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stDeployButton {display: none;}
+    
+    /* خلفية وتنسيق عام */
     .stApp {
         background-color: #0d1117;
         background-image: url("https://www.transparenttextures.com/patterns/islamic-art.png");
         color: #ffffff; direction: rtl;
     }
     
-    /* إخفاء السكرول بار تماماً */
-    ::-webkit-scrollbar { display: none; }
-    .block-container { 
-        padding-top: 2rem !important; 
-        padding-bottom: 5rem !important;
-        overflow: hidden; /* منع التمرير الزائد */
+    /* ضبط المسافات لمنع السكرول وضمان ظهور اسم المطور */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 0rem !important;
+        max-width: 100%;
     }
 
-    /* تنسيق العناوين */
+    /* تنسيق العنوان */
     .main-title { 
         color: #d4af37; text-align: center; font-family: 'Amiri', serif; 
-        font-size: 28px; margin-top: 10px; text-shadow: 2px 2px 5px #000; 
-        z-index: 2; position: relative;
+        font-size: 24px; margin-bottom: 10px; text-shadow: 2px 2px 5px #000;
     }
+
+    /* تنسيق المشغل والقوائم */
+    audio { width: 100%; height: 40px; border-radius: 50px; border: 2px solid #d4af37; }
+    .stSelectbox label { color: #d4af37 !important; font-size: 14px !important; }
     
-    /* تنسيق الفانوس المتحرك */
+    /* تنسيق منطقة المطور لتكون واضحة جداً */
+    .dev-footer {
+        text-align: center;
+        padding: 10px;
+        margin-top: 20px;
+        border-top: 1px solid rgba(212,175,55,0.3);
+        background: rgba(0,0,0,0.3);
+        border-radius: 10px;
+    }
+    .dev-footer a { color: #d4af37; text-decoration: none; font-weight: bold; font-size: 14px; }
+    .dev-footer p { color: #888; font-size: 11px; margin: 0; }
+
+    /* إخفاء الأزرار البرمجية */
+    .stButton { display: none; }
+    
+    /* الفانوس */
     .lantern-container {
-        position: fixed;
-        top: -20px;
-        left: 20px;
-        z-index: 999;
+        position: fixed; top: -15px; left: 15px; z-index: 9999;
         animation: swing 3s infinite ease-in-out alternate;
         transform-origin: top center;
     }
-    .lantern-img { width: 60px; filter: drop-shadow(0 0 10px #ffeb3b); }
-    
-    @keyframes swing {
-        0% { transform: rotate(5deg); }
-        100% { transform: rotate(-5deg); }
-    }
-
-    /* تنسيق المشغل والقائمة */
-    audio { width: 100%; height: 45px; border-radius: 50px; border: 2px solid #d4af37; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2); }
-    .stSelectbox label { color: #d4af37 !important; font-size: 16px !important; }
-    
-    /* تنسيق التذييل */
-    .footer { 
-        text-align: center; color: #888; font-size: 12px; 
-        margin-top: 20px; border-top: 1px solid rgba(212,175,55,0.2); 
-        padding-top: 10px;
-    }
-    .footer a { color: #d4af37; text-decoration: none; font-weight: bold; }
-    
-    /* إخفاء الأزرار التقنية */
-    .stButton { display: none; } 
+    .lantern-img { width: 50px; filter: drop-shadow(0 0 10px #ffeb3b); }
+    @keyframes swing { 0% { transform: rotate(5deg); } 100% { transform: rotate(-5deg); } }
     </style>
     
     <div class="lantern-container">
@@ -74,7 +76,7 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
-# 4. قائمة الجواهر (الموحدة والثابتة)
+# 4. القائمة (نفس القائمة المعتمدة)
 base = "https://archive.org/download/audio30__20260210/gethub"
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
@@ -114,35 +116,25 @@ talaawat_list = [
 ]
 titles = [x[0] for x in talaawat_list]
 
-# 5. منطق الانتقال الآلي
+# 5. المنطق
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-# 6. الواجهة
-col1, col2, col3 = st.columns([0.2, 1, 0.2])
-with col2:
-    st.image("assets/quran.png", width=120)
-
+# 6. الواجهة (Clean UI)
+col1, col2, col3 = st.columns([0.4, 1, 0.4])
+with col2: st.image("assets/quran.png", width=100)
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
 
-# القائمة المنسدلة (بدون أخطاء Key)
-selected_title = st.selectbox(
-    "اختر بداية الورد الإيماني:",
-    titles,
-    index=st.session_state.current_index
-)
-
-# تحديث الحالة عند التغيير اليدوي
+# Selectbox
+selected_title = st.selectbox("", titles, index=st.session_state.current_index, label_visibility="collapsed")
 if titles.index(selected_title) != st.session_state.current_index:
     st.session_state.current_index = titles.index(selected_title)
     st.rerun()
 
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
-st.markdown("---")
-
-# 7. المشغل الصوتي (مستقر)
-st.markdown(f"<div style='text-align:center; color:#f1d592; margin-bottom:10px;'>🔉 {current_name}</div>", unsafe_allow_html=True)
+# 7. المشغل الصوتي
+st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:13px; margin: 5px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
 audio_placeholder = st.empty()
 audio_placeholder.audio(current_url)
 
@@ -154,11 +146,10 @@ components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
     
-    // إعدادات الميديا في شريط الإشعارات
     if ('mediaSession' in navigator) {{
         navigator.mediaSession.metadata = new MediaMetadata({{
             title: '{current_name}',
-            artist: 'الشيخ عبد الباسط عبد الصمد',
+            artist: 'الشيخ عبد الباسط',
             album: 'ربيع القلوب 2026',
             artwork: [{{ src: 'https://archive.org/download/audio30__20260210/assets/quran.png', sizes: '512x512', type: 'image/png' }}]
         }});
@@ -168,7 +159,7 @@ components.html(f"""
     }}
 
     if (audio) {{
-        audio.play().catch(e => console.log("Waiting for interaction..."));
+        audio.play().catch(e => console.log("Waiting..."));
         audio.onended = function() {{
             var btn = window.parent.document.querySelector('button');
             if(btn) btn.click();
@@ -177,18 +168,18 @@ components.html(f"""
     </script>
     """, height=0)
 
-# 9. زر التحميل وتذييل الصفحة
+# 9. التذييل (المنطقة الواضحة)
 st.markdown(f"""
-    <div style="text-align: center; margin-top: 15px;">
+    <div style="text-align: center; margin-top: 10px;">
         <a href="{current_url}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; width: 85%; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
-                📥 تحميل الجوهرة (MP3)
+            <button style="background-color: #2e7d32; color: white; padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                📥 تحميل (MP3)
             </button>
         </a>
     </div>
-    
-    <div class='footer'>
+
+    <div class="dev-footer">
         برمجه وتطوير م/ <a href="https://www.facebook.com/share/1FuFVriwWP/" target="_blank">مجدي إسماعيل</a> © 2026<br>
-        <div style="margin-top:8px; font-size:13px; color:#d4af37;">✨ صدقة جارية | رمضان مبارك ✨</div>
+        <p>🌙 صدقة جارية | نسخة الأندرويد النهائية</p>
     </div>
 """, unsafe_allow_html=True)
