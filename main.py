@@ -37,21 +37,6 @@ st.markdown("""
 
     audio { width: 100%; height: 45px; border-radius: 50px; border: 2px solid #d4af37; }
 
-    /* زر إرشاد التثبيت */
-    .install-hint {
-        background: rgba(212, 175, 55, 0.15);
-        border: 1px dashed #d4af37;
-        color: #f1d592;
-        padding: 8px;
-        text-align: center;
-        border-radius: 10px;
-        font-size: 13px;
-        cursor: pointer;
-        margin: 10px 0;
-        transition: all 0.3s ease;
-    }
-    .install-hint:hover { background: rgba(212, 175, 55, 0.3); }
-
     .dev-footer {
         text-align: center; padding: 12px; margin-top: 20px;
         border-top: 1px solid rgba(212,175,55,0.3);
@@ -73,8 +58,10 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
-# 4. القائمة المعتمدة
+# 4. قاعدة البيانات (الرابط الموحد)
 base = "https://archive.org/download/audio30__20260210/gethub"
+img_url = "https://archive.org/download/audio30__20260210/assets/quran.png" # الرابط المباشر للأيقونة
+
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
     ("الجوهرة 2 - سورة يوسف (حلب 1956)", f"{base}/audio14_.mp3"),
@@ -116,19 +103,18 @@ titles = [x[0] for x in talaawat_list]
 def trigger_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-# 5. الواجهة (تم تعديل هذا الجزء لتكبير وتوسط الأيقونة)
-# استخدام HTML مباشر لضمان التوسط التام والحجم الكبير
-st.markdown("""
-    <div style="display: flex; justify-content: center; align-items: center; margin-top: 10px; margin-bottom: 15px;">
-        <img src="assets/quran.png" width="200" style="filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.5));">
+# 5. الواجهة (تصحيح ظهور الأيقونة وتوسيطها)
+st.markdown(f"""
+    <div style="display: flex; justify-content: center; align-items: center; padding-top: 10px; margin-bottom: 10px;">
+        <img src="{img_url}" width="200" style="filter: drop-shadow(0px 5px 15px rgba(0,0,0,0.6));">
     </div>
     """, unsafe_allow_html=True)
 
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
 
-# عنصر الإرشاد للتثبيت
-if st.button("📱 اضغط هنا لتثبيت التطبيق على هاتفك", key="install_btn", help="اجعل ربيع القلوب تطبيقاً على هاتفك"):
-    st.toast("انقر على الثلاث نقاط (⋮) أعلى اليسار ثم اختر 'الإضافة إلى الشاشة الرئيسية'", icon="📲")
+# زر التثبيت
+if st.button("📱 اضغط هنا لتثبيت التطبيق على هاتفك", key="install_btn"):
+    st.toast("انقر على النقاط الثلاث (⋮) ثم 'الإضافة إلى الشاشة الرئيسية'", icon="📲")
 
 selected_title = st.selectbox("", titles, index=st.session_state.current_index, label_visibility="collapsed")
 if titles.index(selected_title) != st.session_state.current_index:
@@ -137,13 +123,13 @@ if titles.index(selected_title) != st.session_state.current_index:
 
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
-st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:14px; margin: 10px 0; font-weight:bold;'>📻 {current_name}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:14px; margin: 10px 0;'>📻 {current_name}</div>", unsafe_allow_html=True)
 st.audio(current_url)
 
 if st.button("Next_Sync", on_click=trigger_next):
     pass
 
-# 6. الجافا سكريبت המطور (MediaSession + Auto-Play)
+# 6. الجافا سكريبت (MediaSession + Auto-Advance)
 components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
@@ -154,7 +140,7 @@ components.html(f"""
             title: '{current_name}',
             artist: 'الشيخ عبد الباسط',
             album: 'ربيع القلوب 2026',
-            artwork: [{{ src: 'https://archive.org/download/audio30__20260210/assets/quran.png', sizes: '512x512', type: 'image/png' }}]
+            artwork: [{{ src: '{img_url}', sizes: '512x512', type: 'image/png' }}]
         }});
         navigator.mediaSession.setActionHandler('nexttrack', function() {{
             const btn = window.parent.document.querySelector('button[kind="secondary"]');
@@ -163,7 +149,7 @@ components.html(f"""
     }}
 
     if (audio) {{
-        audio.play().catch(e => console.log("Silent Play"));
+        audio.play().catch(e => console.log("Ready"));
         audio.onended = function() {{
             const btn = window.parent.document.querySelector('button[kind="secondary"]');
             if(btn) btn.click();
@@ -172,11 +158,11 @@ components.html(f"""
     </script>
     """, height=0)
 
-# 7. التذييل
+# 7. التذييل (المطور مجدي إسماعيل)
 st.markdown(f"""
-    <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 15px;">
         <a href="{current_url}" target="_self" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+            <button style="background-color: #2e7d32; color: white; padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold;">
                 📥 تحميل مباشر (MP3)
             </button>
         </a>
