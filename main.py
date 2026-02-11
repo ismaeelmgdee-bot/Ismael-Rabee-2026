@@ -8,11 +8,11 @@ st.set_page_config(
     layout="centered"
 )
 
-# 2. تهيئة الذاكرة للتنقل المتسلسل
+# 2. تهيئة الذاكرة
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 
-# 3. التصميم الملكي الرمضاني (بدون سكرول)
+# 3. التصميم الملكي (رمضاني + أندرويد + No Scroll)
 st.markdown("""
     <style>
     .stApp {
@@ -26,20 +26,18 @@ st.markdown("""
         padding: 8px; font-size: 16px; border-radius: 12px; margin: 5px 0;
         border: 1px solid rgba(212,175,55,0.3);
     }
-    audio { width: 100%; height: 40px; border-radius: 50px; border: 2px solid #d4af37; }
+    audio { width: 100%; height: 45px; border-radius: 50px; border: 2px solid #d4af37; }
     .stSelectbox label { color: #d4af37 !important; font-size: 14px !important; }
-    
-    /* منع السكرول لتجربة موبايل مثالية */
     ::-webkit-scrollbar { display: none; }
     .block-container { padding-top: 1rem !important; padding-bottom: 0rem !important; }
-    
     .footer { text-align: center; color: #666; font-size: 10px; margin-top: 15px; }
+    /* إخفاء زر الانتقال الآلي ليبقى المظهر نظيفاً */
+    .stButton { display: none; }
     </style>
     """, unsafe_allow_html=True)
 
-# 4. قاعدة بيانات الروابط الموحدة (قائمتك النهائية المعتمدة)
+# 4. قائمة الجواهر الـ 34 المعتمدة
 base = "https://archive.org/download/audio30__20260210/gethub"
-
 talaawat_list = [
     ("الجوهرة 1 - سورة الكهف وقصار السور", f"{base}/audio12_.mp3"),
     ("الجوهرة 2 - سورة يوسف (حلب 1956)", f"{base}/audio14_.mp3"),
@@ -76,72 +74,73 @@ talaawat_list = [
     ("الجوهرة 33 - تلاوة مباركة 33", f"{base}/audio33_.mp3"),
     ("الجوهرة 34 - تلاوة مباركة 34", f"{base}/audio34_.mp3")
 ]
-
 titles = [x[0] for x in talaawat_list]
 
-# 5. منطق الانتقال التلقائي
-def move_next():
+# 5. منطق الانتقال
+def force_next():
     st.session_state.current_index = (st.session_state.current_index + 1) % len(talaawat_list)
 
-# 6. الواجهة البرمجية
+# 6. الواجهة
 st.markdown("<div class='main-title'>🌙 ربيع القلوب 2026</div>", unsafe_allow_html=True)
-
 col1, col2, col3 = st.columns([0.6, 1, 0.6])
-with col2:
-    st.image("assets/quran.png", width=120)
-
+with col2: st.image("assets/quran.png", width=120)
 st.markdown("<div class='ramadan-banner'>🌙 رمضان كريم تقبل الله الصيام والقيام 🌙</div>", unsafe_allow_html=True)
 
 # قائمة الاختيار
-selected_title = st.selectbox(
-    "اختر بداية الورد:",
-    titles,
-    index=st.session_state.current_index,
-    key="manual_selection"
-)
+selected_title = st.selectbox("اختر بداية الورد:", titles, index=st.session_state.current_index)
 
-# تحديث الفهرس إذا تغير الاختيار يدوياً
+# تحديث الفهرس
 if titles.index(selected_title) != st.session_state.current_index:
     st.session_state.current_index = titles.index(selected_title)
     st.rerun()
 
 current_name, current_url = talaawat_list[st.session_state.current_index]
 
-# 7. المشغل الصوتي
-st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:14px;'>🔔 جاري الاستماع: {current_name}</div>", unsafe_allow_html=True)
-st.audio(current_url)
+# 7. المشغل الصوتي (Key متغير لضمان إعادة التحميل والتشغيل الفوري)
+st.markdown(f"<div style='text-align:center; color:#f1d592; font-size:14px; margin-bottom:5px;'>🔔 جاري الاستماع: {current_name}</div>", unsafe_allow_html=True)
+st.audio(current_url, key=f"play_{st.session_state.current_index}")
 
-# 8. زر الانتقال التلقائي (مخفي برمجياً عبر JS)
-st.button("التالي ⏭️", on_click=move_next, use_container_width=True, key="next_btn")
+# 8. زر مخفي لعملية الـ Trigger
+st.button("NextTrigger", on_click=force_next)
 
-# 9. محرك الانتقال المتسلسل (JavaScript)
-components.html(
-    f"""
+# 9. حقن الجافا سكريبت الاحترافية (MediaSession + Auto-Advance)
+components.html(f"""
     <script>
     var audio = window.parent.document.querySelector('audio');
+    
+    // 1. تعريف التطبيق للنظام كمشغل ميديا
+    if ('mediaSession' in navigator) {{
+        navigator.mediaSession.metadata = new MediaMetadata({{
+            title: '{current_name}',
+            artist: 'الشيخ عبد الباسط عبد الصمد',
+            album: 'ربيع القلوب 2026',
+            artwork: [{{ src: 'https://archive.org/download/audio30__20260210/assets/quran.png', sizes: '512x512', type: 'image/png' }}]
+        }});
+        
+        // ربط أزرار الهاتف الخارجية بالبرنامج
+        navigator.mediaSession.setActionHandler('nexttrack', function() {{
+            window.parent.document.querySelector('button').click();
+        }});
+    }}
+
     if (audio) {{
-        audio.play();
+        audio.play().catch(e => console.log("Waiting for interaction"));
+        
+        // 2. الانتقال التلقائي المضمون
         audio.onended = function() {{
-            var buttons = window.parent.document.querySelectorAll('button');
-            for (var i = 0; i < buttons.length; i++) {{
-                if (buttons[i].innerText.includes('التالي')) {{
-                    buttons[i].click();
-                    break;
-                }}
-            }}
+            var btn = window.parent.document.querySelector('button');
+            if(btn) btn.click();
         }};
     }}
     </script>
-    """,
-    height=0
-)
+    """, height=0)
 
-# 10. زر التحميل الرمضاني
+# 10. زر التحميل
 st.markdown(f"""
-    <div style="text-align: center; margin-top: 10px;">
+    <div style="text-align: center; margin-top: 15px;">
         <a href="{current_url}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #2e7d32; color: white; padding: 8px; border-radius: 10px; width: 70%; border: 1px solid #d4af37; cursor: pointer; font-size: 12px; font-weight: bold;">
-                📥 تحميل MP3
+            <button style="background-color: #2e7d32; color: white; padding: 10px; border-radius: 12px; width: 80%; border: 1px solid #d4af37; cursor: pointer; font-size: 14px; font-weight: bold;">
+                📥 تحميل الجوهرة (MP3)
             </button>
         </a>
     </div>
